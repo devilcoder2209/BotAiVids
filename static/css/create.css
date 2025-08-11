@@ -1,0 +1,295 @@
+.upload-section {
+    padding: 4rem 0;
+    background: var(--bg-secondary);
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.upload-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 3rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 25px;
+    box-shadow: 0 20px 40px var(--shadow-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.upload-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 2.5rem;
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.upload-instructions {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.dropzone {
+    border: 2px dashed var(--primary-color) !important;
+    border-radius: 20px !important;
+    background: var(--bg-tertiary) !important;
+    min-height: 200px !important;
+    padding: 30px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.dropzone::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(var(--primary-color-rgb), 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.dropzone:hover {
+    border-color: var(--accent-color) !important;
+    background: var(--bg-secondary) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+.dropzone:hover::before {
+    left: 100%;
+}
+
+.dropzone .dz-message {
+    margin: 2em 0 !important;
+    color: var(--primary-color) !important;
+    font-size: 1.2rem !important;
+    font-weight: 500;
+}
+
+.submit-btn {
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    margin-top: 2rem;
+    width: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    font-size: 1.1rem;
+}
+
+.submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px var(--shadow-color);
+}
+
+.submit-btn:hover::before {
+    left: 100%;
+}
+
+.submit-btn:disabled {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.text-input-container {
+    margin: 2rem 0;
+}
+
+.text-input {
+    width: 100%;
+    padding: 1.2rem;
+    border: 2px solid var(--border-color);
+    border-radius: 15px;
+    background: var(--bg-primary);
+    font-size: 1rem;
+    color: var(--text-primary);
+    resize: vertical;
+    min-height: 120px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    backdrop-filter: blur(10px);
+}
+
+.text-input:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+.text-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+    transform: translateY(-2px);
+}
+
+.text-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.file-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 15px;
+    padding: 15px;
+    background: var(--bg-tertiary);
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.file-input-group:hover {
+    background: var(--bg-secondary);
+    border-color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.file-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.file-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.1);
+}
+
+.add-file-btn {
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 10px 0;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.add-file-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+}
+
+.remove-file-btn {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.remove-file-btn:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+}
+
+#fileInputs {
+    margin-bottom: 20px;
+}
+
+/* Style for the file input when a file is selected */
+.file-input:not(:placeholder-shown) {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+/* Loading animation */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .upload-container {
+        margin: 1rem;
+        padding: 2rem;
+    }
+    
+    .file-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .remove-file-btn {
+        align-self: flex-end;
+    }
+    
+    .upload-title {
+        font-size: 2rem;
+    }
+}

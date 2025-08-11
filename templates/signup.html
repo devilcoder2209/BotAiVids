@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block extra_css %}
+<style>
+.signup-form {
+  max-width: 400px;
+  margin: 40px auto;
+  background: rgba(255,255,255,0.07);
+  border-radius: 16px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.12);
+  padding: 32px 24px;
+  backdrop-filter: blur(8px);
+}
+.signup-form h2 {
+  margin-bottom: 24px;
+  font-weight: 700;
+  text-align: center;
+}
+.signup-form .form-control {
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.signup-form .btn-primary {
+  width: 100%;
+  border-radius: 8px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #6f42c1 0%, #e83e8c 100%);
+  border: none;
+}
+.signup-form .btn-primary:hover {
+  background: linear-gradient(90deg, #e83e8c 0%, #6f42c1 100%);
+}
+.signup-form .login-link {
+  color: #6f42c1;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.signup-form .login-link:hover {
+  color: #e83e8c;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<form class="signup-form" method="post">
+  <h2>Sign Up</h2>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <div class="mb-3">
+    <label for="username" class="form-label">Username</label>
+    <input type="text" class="form-control" id="username" name="username" required>
+  </div>
+  <div class="mb-3">
+    <label for="email" class="form-label">Email</label>
+    <input type="email" class="form-control" id="email" name="email" required>
+  </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <input type="password" class="form-control" id="password" name="password" required>
+  </div>
+  <div class="mb-3">
+    <label for="confirm" class="form-label">Confirm Password</label>
+    <input type="password" class="form-control" id="confirm" name="confirm" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Sign Up</button>
+  <p class="mt-3 text-center">
+    Already have an account? 
+    <a class="login-link" href="{{ url_for('login') }}">Log in here</a>.
+  </p>
+</form>
+{% endblock %}

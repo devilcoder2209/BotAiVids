@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}BotAiVids - Create Amazing Short Videos with AI{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">Create Amazing Short Videos with AI</h1>
+        <p class="hero-subtitle">Transform your content into engaging videos with this AI-powered platform</p>
+                {% if not current_user.is_authenticated %}
+                    <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 40vh; margin-top: -6vh;">
+                        <div class="d-flex flex-row justify-content-center gap-3 mb-3 w-100" style="max-width: 350px;">
+                            <a href="{{ url_for('login') }}" class="glass-btn flex-fill text-center">Login</a>
+                            <a href="{{ url_for('signup') }}" class="glass-btn flex-fill text-center">Sign Up</a>
+                        </div>
+                        <p class="w-100 text-center mt-2">You need to login or sign up to create reels.</p>
+                    </div>
+{% block extra_css %}
+<style>
+.glass-btn {
+    display: inline-block;
+    padding: 0.7rem 2.2rem;
+    border-radius: 2rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    background: var(--glass-bg);
+    border: 1.5px solid var(--glass-border);
+    box-shadow: 0 2px 16px rgba(111,66,193,0.08), 0 1.5px 8px 0 rgba(232,62,140,0.10);
+    backdrop-filter: blur(12px);
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+}
+.glass-btn:hover {
+    background: linear-gradient(90deg, #e83e8c 0%, #6f42c1 100%);
+    color: #fff;
+    box-shadow: 0 4px 24px #e83e8c22;
+    transform: translateY(-2px) scale(1.04);
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+                {% else %}
+                    <a href="/create" class="cta-button">Start Creating Now</a>
+                {% endif %}
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-magic feature-icon"></i>
+                    <h3>AI-Powered Editing</h3>
+                    <p>Let our AI analyze and enhance your videos automatically</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-film feature-icon"></i>
+                    <h3>Smart Stitching</h3>
+                    <p>Seamlessly combine multiple clips into perfect reels</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-music feature-icon"></i>
+                    <h3>Music Integration</h3>
+                    <p>Add trending music and sound effects to your reels</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="showcase-section">
+    <div class="container">
+        <h2 class="showcase-title">Featured Creations</h2>
+        <div class="image-grid">
+            <img src="{{ url_for('static', filename='1.jpg') }}" alt="Reel Example 1" class="showcase-image">
+            <img src="{{ url_for('static', filename='2.jpg') }}" alt="Reel Example 2" class="showcase-image">
+            <img src="{{ url_for('static', filename='3.jpg') }}" alt="Reel Example 3" class="showcase-image">
+            <img src="{{ url_for('static', filename='4.jpg') }}" alt="Reel Example 4" class="showcase-image">
+        </div>
+    </div>
+</section>
+{% endblock %}
+ 

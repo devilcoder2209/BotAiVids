@@ -1,0 +1,7 @@
+Flask
+Flask-Login
+Flask-SQLAlchemy
+Flask-Admin
+Werkzeug
+python-dotenv
+elevenlabs

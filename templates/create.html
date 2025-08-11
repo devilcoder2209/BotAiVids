@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Create Reel - AI Reel Generator{% endblock %}
+
+{% block extra_css %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create.css') }}">
+<style>
+.glass-btn {
+    display: inline-block;
+    padding: 0.7rem 2.2rem;
+    border-radius: 2rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    background: var(--glass-bg);
+    border: 1.5px solid var(--glass-border);
+    box-shadow: 0 2px 16px rgba(111,66,193,0.08), 0 1.5px 8px 0 rgba(232,62,140,0.10);
+    backdrop-filter: blur(12px);
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+}
+.glass-btn:hover {
+    background: linear-gradient(90deg, #e83e8c 0%, #6f42c1 100%);
+    color: #fff;
+    box-shadow: 0 4px 24px #e83e8c22;
+    transform: translateY(-2px) scale(1.04);
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% if not current_user.is_authenticated %}
+<section class="upload-section">
+    <div class="container">
+        <div class="upload-container">
+            <h1 class="upload-title text-center">Login Required</h1>
+            <div class="d-flex flex-column align-items-center">
+                <div class="d-flex flex-row justify-content-center gap-3 mt-4 mb-2 w-100" style="max-width: 350px;">
+                    <a href="{{ url_for('login') }}" class="glass-btn flex-fill text-center">Login</a>
+                    <a href="{{ url_for('signup') }}" class="glass-btn flex-fill text-center">Sign Up</a>
+                </div>
+                <p class="upload-instructions text-center mt-3 mb-0 w-100">You must be logged in to create a reel.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% else %}
+<section class="upload-section">
+    <div class="container">
+        <div class="upload-container">
+            <h1 class="upload-title text-center">Create Your Reel</h1>
+            <p class="upload-instructions text-center">Upload your video files to create an amazing reel. You can upload multiple files.</p>
+            <form action="/create" enctype="multipart/form-data" method="post" id="multiFileForm">
+                <div class="mb-3">
+                    <label for="files" class="form-label">Select Images (you can select multiple):</label>
+                    <input name="files" id="files" type="file" class="form-control" multiple accept="image/*">
+                    <input name="uuid" type="hidden" value="{{ myid }}" />
+                </div>
+                <div id="preview" class="mb-3"></div>
+                <div class="text-input-container">
+                    <textarea class="text-input" id="textInput" name="text" placeholder="Enter your text to be added as voice here..." rows="4"></textarea>
+                </div>
+                <div class="d-flex justify-content-center mt-4">
+                    <button type="submit" class="submit-btn w-50" id="submitBtn">
+                        Create Reel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Preview and remove selected files before upload
+const filesInput = document.getElementById('files');
+const preview = document.getElementById('preview');
+let fileList = [];
+
+
+filesInput.addEventListener('change', function(e) {
+    // Append new files to fileList, avoiding duplicates
+    const newFiles = Array.from(filesInput.files);
+    // Only add files that are not already in fileList (by name and size)
+    newFiles.forEach(f => {
+        if (!fileList.some(existing => existing.name === f.name && existing.size === f.size)) {
+            fileList.push(f);
+        }
+    });
+    updateInputFiles();
+    renderPreview();
+});
+
+function renderPreview() {
+    preview.innerHTML = '';
+    fileList.forEach((file, idx) => {
+        const div = document.createElement('div');
+        div.className = 'preview-thumb';
+        div.style.display = 'inline-block';
+        div.style.margin = '0 10px 10px 0';
+        div.innerHTML = `<img src="${URL.createObjectURL(file)}" style="height:60px;border-radius:8px;box-shadow:0 2px 8px #0002;vertical-align:middle;"> <button type="button" onclick="removeFile(${idx})" style="border:none;background:#e83e8c;color:#fff;border-radius:50%;width:24px;height:24px;font-weight:bold;">×</button>`;
+        preview.appendChild(div);
+    });
+}
+
+window.removeFile = function(idx) {
+    fileList.splice(idx, 1);
+    updateInputFiles();
+    renderPreview();
+}
+
+function updateInputFiles() {
+    // Create a new DataTransfer to update the input's files
+    const dt = new DataTransfer();
+    fileList.forEach(f => dt.items.add(f));
+    filesInput.files = dt.files;
+}
+</script>
+{% endblock %} 
