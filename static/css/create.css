@@ -1,3 +1,49 @@
+/* Extra mobile responsiveness for 480px and below */
+@media (max-width: 480px) {
+    .upload-section {
+        padding: 1.2rem 0;
+        min-height: 60vh;
+    }
+    .upload-container {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+    .upload-title {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    .upload-instructions {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+    .glass-btn, .submit-btn {
+        font-size: 1rem;
+        padding: 0.6rem 1.2rem;
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    .d-flex.flex-row.gap-3, .d-flex.flex-row.justify-content-center.gap-3.mt-4.mb-2.w-100 {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+        align-items: stretch !important;
+    }
+    .text-input {
+        font-size: 0.95rem;
+        padding: 0.8rem;
+        min-height: 80px;
+    }
+    #preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    .preview-thumb img {
+        height: 40px !important;
+        border-radius: 6px !important;
+    }
+}
 .upload-section {
     padding: 4rem 0;
     background: var(--bg-secondary);
