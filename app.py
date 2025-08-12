@@ -47,4 +47,4 @@ admin.add_view(SecureModelView(User, db.session))
 from main import *
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
