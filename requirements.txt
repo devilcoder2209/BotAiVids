@@ -5,3 +5,6 @@ Flask-Admin
 Werkzeug
 python-dotenv
 elevenlabs
+gunicorn
+
+
