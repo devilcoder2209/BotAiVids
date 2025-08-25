@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: botaivids-app
+    env: python
+    plan: free
+    buildCommand: |
+      apt-get update && apt-get install -y ffmpeg
+      pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    autoDeploy: true
+
+databases:
+  - name: botaivids-db
+    databaseName: botaivids
+    user: botaivids_user
+    plan: free
