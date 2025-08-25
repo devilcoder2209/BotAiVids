@@ -61,108 +61,6 @@ def text_to_speech(folder: str):
         text = f.read()
     print(text, folder)
     text_to_speech_file(text, folder)
-def create_reel_with_python_ffmpeg(folder):
-    """
-    Alternative video creation using ffmpeg-python library
-    This is a fallback when system FFmpeg is not available
-    """
-    try:
-        import ffmpeg
-        print(f"[INFO] Using ffmpeg-python library for video creation...")
-        
-        input_txt_path = f"user_uploads/{folder}/input.txt"
-        audio_path = f"user_uploads/{folder}/audio.mp3"
-        output_video_path = f"static/reels/{folder}.mp4"
-        
-        # Create output directory
-        os.makedirs("static/reels", exist_ok=True)
-        
-        # Read input.txt to get image list
-        if not os.path.exists(input_txt_path):
-            print(f"[ERROR] input.txt not found for {folder}")
-            update_video_status(folder, 'failed')
-            return None
-            
-        with open(input_txt_path, "r") as f:
-            lines = f.readlines()
-        
-        # Extract image paths
-        image_paths = []
-        for line in lines:
-            if line.startswith("file "):
-                img_file = line.split("'")[1]
-                img_path = os.path.join(f"user_uploads/{folder}", img_file)
-                if os.path.exists(img_path):
-                    image_paths.append(img_path)
-        
-        if not image_paths:
-            print(f"[ERROR] No valid images found for {folder}")
-            update_video_status(folder, 'failed')
-            return None
-        
-        # Create video using ffmpeg-python
-        # Create input stream from images
-        input_stream = ffmpeg.input(f'user_uploads/{folder}/input.txt', 
-                                  f='concat', safe=0)
-        audio_stream = ffmpeg.input(audio_path)
-        
-        # Process video with scaling and encoding
-        video = input_stream.video.filter('scale', 'trunc(iw/2)*2', 'trunc(ih/2)*2')
-        
-        # Combine video and audio
-        output = ffmpeg.output(
-            video, audio_stream,
-            output_video_path,
-            vcodec='libx264',
-            pix_fmt='yuv420p',
-            acodec='aac',
-            shortest=None
-        )
-        
-        # Run the ffmpeg command
-        ffmpeg.run(output, overwrite_output=True, quiet=True)
-        
-        # Check if output was created
-        if os.path.exists(output_video_path) and os.path.getsize(output_video_path) > 0:
-            print(f"[SUCCESS] Video created with ffmpeg-python: {output_video_path}")
-            
-            # Upload to Cloudinary
-            try:
-                upload_result = cloudinary.uploader.upload(
-                    output_video_path,
-                    resource_type="video",
-                    public_id=f"videos/{folder}",
-                    folder="bot_ai_vids"
-                )
-                cloudinary_url = upload_result.get('secure_url')
-                print(f"[SUCCESS] Video uploaded to Cloudinary: {cloudinary_url}")
-                
-                update_video_status(folder, 'completed', cloudinary_url)
-                
-                # Clean up local file
-                if os.path.exists(output_video_path):
-                    os.remove(output_video_path)
-                    
-                return cloudinary_url
-            except Exception as e:
-                print(f"[ERROR] Failed to upload to Cloudinary: {e}")
-                local_url = f"/static/reels/{folder}.mp4"
-                update_video_status(folder, 'completed', local_url)
-                return local_url
-        else:
-            print(f"[ERROR] ffmpeg-python failed to create video")
-            update_video_status(folder, 'failed')
-            return None
-            
-    except ImportError:
-        print("[ERROR] ffmpeg-python library not available")
-        update_video_status(folder, 'failed')
-        return None
-    except Exception as e:
-        print(f"[ERROR] ffmpeg-python error: {e}")
-        update_video_status(folder, 'failed')
-        return None
-
 def create_reel(folder):
     """
     Creates a video reel from images and audio for a given folder.
@@ -187,7 +85,7 @@ def create_reel(folder):
     print(f"[DEBUG] input.txt contents:\n{''.join(lines)}")
     
     # Check that all referenced files exist and are valid images
-    from PIL import Image
+    import imghdr
     missing_files = []
     invalid_images = []
     for line in lines:
@@ -197,11 +95,7 @@ def create_reel(folder):
             if not os.path.exists(img_path):
                 missing_files.append(img_file)
             else:
-                # Check if file is a valid image using Pillow (more reliable than imghdr)
-                try:
-                    with Image.open(img_path) as img:
-                        img.verify()  # Verify it's a valid image
-                except Exception:
+                if imghdr.what(img_path) is None:
                     invalid_images.append(img_file)
     if missing_files:
         print(f"[ERROR] The following files referenced in input.txt are missing: {missing_files}")
@@ -228,26 +122,6 @@ def create_reel(folder):
 -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest {output_video_path}'''
     
     print(f"[DEBUG] Running ffmpeg command: {command}")
-    
-    # First, check if FFmpeg is available
-    try:
-        ffmpeg_check = subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True)
-        if ffmpeg_check.returncode != 0:
-            print(f"[ERROR] FFmpeg not available or not working properly")
-            print(f"[FFMPEG CHECK STDERR]: {ffmpeg_check.stderr}")
-            update_video_status(folder, 'failed')
-            return None
-        else:
-            print(f"[DEBUG] FFmpeg is available: {ffmpeg_check.stdout.split('version')[1].split('Copyright')[0].strip()}")
-    except FileNotFoundError:
-        print("[ERROR] FFmpeg binary not found in system PATH")
-        print("[INFO] Trying alternative ffmpeg-python approach...")
-        return create_reel_with_python_ffmpeg(folder)
-    except Exception as e:
-        print(f"[ERROR] Error checking FFmpeg availability: {e}")
-        print("[INFO] Trying alternative ffmpeg-python approach...")
-        return create_reel_with_python_ffmpeg(folder)
-    
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         print(f"[FFMPEG STDOUT]:\n{result.stdout}")
@@ -262,10 +136,6 @@ def create_reel(folder):
                 print("[ERROR] Input file not found - check if all referenced files exist")
             elif "Invalid argument" in result.stderr:
                 print("[ERROR] Invalid FFmpeg parameters - check input format and codec settings")
-            elif "ffmpeg: not found" in result.stderr or "command not found" in result.stderr:
-                print("[ERROR] FFmpeg binary not found - check if FFmpeg is properly installed")
-            else:
-                print("[ERROR] Unknown FFmpeg error - check the stderr output above")
             # Update database with failed status
             update_video_status(folder, 'failed')
             return None
