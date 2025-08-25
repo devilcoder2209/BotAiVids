@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - User Details{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+.user-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.user-header {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.user-info h1 {
+    margin: 0 0 8px 0;
+    font-size: 2rem;
+}
+
+.user-meta {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-label {
+    font-size: 12px;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.meta-value {
+    font-weight: 500;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-admin {
+    background: #dc3545;
+    color: white;
+}
+
+.badge-user {
+    background: #28a745;
+    color: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.stat-label {
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.videos-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+}
+
+.videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.video-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+}
+
+.video-info {
+    padding: 15px;
+}
+
+.video-title {
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.video-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.status-badge {
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.status-completed { background: #d4edda; color: #155724; }
+.status-processing { background: #fff3cd; color: #856404; }
+.status-failed { background: #f8d7da; color: #721c24; }
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary { background: #007bff; color: white; }
+.btn-secondary { background: #6c757d; color: white; }
+.btn-danger { background: #dc3545; color: white; }
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="user-detail-container">
+    <!-- Back Button -->
+    <div style="margin-bottom: 20px;">
+        <a href="/manage/users" class="btn btn-secondary">← Back to Users</a>
+    </div>
+
+    <!-- User Header -->
+    <div class="user-header">
+        <div class="user-profile">
+            <div class="user-avatar-large">
+                {{ user.username[0].upper() }}
+            </div>
+            <div class="user-info">
+                <h1>{{ user.username }}</h1>
+                <p>{{ user.email or 'No email provided' }}</p>
+                {% if user.is_admin %}
+                    <span class="badge badge-admin">Administrator</span>
+                {% else %}
+                    <span class="badge badge-user">Regular User</span>
+                {% endif %}
+                
+                <div class="user-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Member Since</span>
+                        <span class="meta-value">{{ user.created_at.strftime('%B %d, %Y') }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">User ID</span>
+                        <span class="meta-value">#{{ user.id }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ videos|length }}</div>
+            <div class="stat-label">Total Videos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ videos|selectattr('status', 'equalto', 'completed')|list|length }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ videos|selectattr('status', 'equalto', 'processing')|list|length }}</div>
+            <div class="stat-label">Processing</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ videos|selectattr('status', 'equalto', 'failed')|list|length }}</div>
+            <div class="stat-label">Failed</div>
+        </div>
+    </div>
+
+    <!-- Videos Section -->
+    <div class="videos-section">
+        <div class="section-header">
+            <h3>User Videos ({{ videos|length }})</h3>
+        </div>
+        
+        {% if videos %}
+            <div class="videos-grid">
+                {% for video in videos %}
+                    <div class="video-card">
+                        {% if video.cloudinary_url %}
+                            <video width="100%" height="200" controls>
+                                <source src="{{ video.cloudinary_url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        {% else %}
+                            <div style="height: 200px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                <span>No video available</span>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="video-info">
+                            <div class="video-title">
+                                {{ video.description[:50] }}{% if video.description|length > 50 %}...{% endif %}
+                            </div>
+                            <div class="video-meta">
+                                <span>{{ video.created_at.strftime('%b %d, %Y') }}</span>
+                                <span class="status-badge status-{{ video.status }}">
+                                    {{ video.status.title() }}
+                                </span>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                {% if video.cloudinary_url %}
+                                    <a href="{{ video.cloudinary_url }}" target="_blank" class="btn btn-primary">View Video</a>
+                                {% endif %}
+                                <form method="POST" action="{{ url_for('manage_delete_video', video_id=video.id) }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger" 
+                                            onclick="return confirm('Are you sure you want to delete this video?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="padding: 40px; text-align: center; color: #6c757d;">
+                <p>This user hasn't created any videos yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

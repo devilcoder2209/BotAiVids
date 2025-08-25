@@ -4,20 +4,339 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
+<style>
+/* Gallery Filter Styling */
+.gallery-filters {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 15px 35px var(--shadow-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.gallery-filters::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.filter-title {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.filter-group input, 
+.filter-group select {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.filter-group input:focus, 
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: var(--bg-primary);
+}
+
+.filter-group input::placeholder {
+    color: var(--text-secondary);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+}
+
+.btn-filter, .btn-clear {
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    border: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.btn-filter {
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    color: white;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-filter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.btn-clear {
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+}
+
+.btn-clear:hover {
+    background: var(--bg-secondary);
+    transform: translateY(-2px);
+}
+
+.gallery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.results-info {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+    background: var(--glass-bg);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+}
+
+.reel-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-completed { 
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+}
+
+.status-processing { 
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.status-failed { 
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.user-info {
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.admin-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+.btn-delete {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .filter-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-filter, .btn-clear {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .gallery-header {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="container gallery-container">
-    <h1 class="gallery-title">Reel Gallery</h1>
+    <div class="gallery-header">
+        <h1 class="gallery-title">Reel Gallery</h1>
+        <div class="results-info">
+            <i class="fas fa-video"></i>
+            Showing {{ videos|length }} video{% if videos|length != 1 %}s{% endif %}
+        </div>
+    </div>
+
+    <!-- Enhanced Filters -->
+    <div class="gallery-filters">
+        <h3 class="filter-title"><i class="fas fa-filter"></i> Filter & Search</h3>
+        <form method="GET">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="search"><i class="fas fa-search"></i> Search Videos</label>
+                    <input type="text" id="search" name="search" value="{{ search_query }}" 
+                           placeholder="Search in descriptions...">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="status"><i class="fas fa-tasks"></i> Status</label>
+                    <select id="status" name="status">
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+                        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>Processing</option>
+                        <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+                    </select>
+                </div>
+                
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <div class="filter-group">
+                    <label for="user_id"><i class="fas fa-user"></i> User</label>
+                    <select id="user_id" name="user_id">
+                        <option value="">All Users</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}" {% if user_filter == user.id|string %}selected{% endif %}>
+                                {{ user.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter">
+                        <i class="fas fa-search"></i> Apply
+                    </button>
+                    <a href="{{ url_for('gallery') }}" class="btn-clear">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="gallery-grid">
-        {% for reel in reels %}
+        {% for video in videos %}
             <div class="reel-card">
-                <video class="reel-video" src="{{ url_for('static', filename='reels/' + reel) }}" controls width="320" height="570" poster="{{ url_for('static', filename='3.jpg') }}"></video>
+                {% if video.cloudinary_url %}
+                    <video class="reel-video" src="{{ video.cloudinary_url }}" controls width="320" height="570" poster="{{ url_for('static', filename='3.jpg') }}"></video>
+                {% else %}
+                    <video class="reel-video" src="{{ url_for('static', filename='reels/' + video.uuid + '.mp4') }}" controls width="320" height="570" poster="{{ url_for('static', filename='3.jpg') }}"></video>
+                {% endif %}
                 <div class="reel-info">
-                    <h3>{{ reel }}</h3>
+                    <h3>{{ video.description[:50] }}{% if video.description|length > 50 %}...{% endif %}</h3>
+                    
+                    <div class="reel-meta">
+                        <span><i class="fas fa-calendar"></i> {{ video.created_at.strftime('%B %d, %Y') }}</span>
+                        <span class="status-badge status-{{ video.status }}">
+                            {{ video.status.title() }}
+                        </span>
+                    </div>
+                    
+                    {% if video.user_id %}
+                        <div class="user-info">
+                            <i class="fas fa-user-circle"></i> Created by: {{ video.user.username if video.user else 'Unknown User' }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                        <div class="admin-actions">
+                            <form method="POST" action="{{ url_for('manage_delete_video', video_id=video.id) }}" style="display: inline;">
+                                <button type="submit" class="btn-delete" 
+                                        onclick="return confirm('Are you sure you want to delete this video?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}
+        
+        {% if not videos %}
+            <div class="empty-gallery">
+                <i class="fas fa-video-slash"></i>
+                <h3>No Videos Found</h3>
+                <p>No videos found matching your criteria.</p>
+                <a href="{{ url_for('create') }}" class="btn-filter" style="margin-top: 1rem;">
+                    <i class="fas fa-plus"></i> Create your first reel!
+                </a>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %} 

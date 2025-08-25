@@ -1,0 +1,579 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - AI Reel Generator{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+.admin-dashboard {
+    padding: 2rem 0;
+    background: var(--bg-secondary);
+    min-height: 80vh;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.dashboard-title {
+    color: var(--text-primary);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dashboard-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 15px 35px var(--shadow-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover::before {
+    transform: scaleX(1);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px var(--shadow-color);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.stat-change {
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.stat-change.positive {
+    color: #10b981;
+}
+
+.stat-change.negative {
+    color: #ef4444;
+}
+
+/* Dashboard Sections */
+.dashboard-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.dashboard-section {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 15px 35px var(--shadow-color);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.section-title {
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-action {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.section-action:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Lists */
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-item:hover {
+    background: var(--glass-bg);
+    margin: 0 -1rem;
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+.activity-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    margin-right: 1rem;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.activity-meta {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.activity-time {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* Charts placeholder */
+.chart-container {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-bg);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.action-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.action-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+}
+
+.action-icon {
+    font-size: 1.5rem;
+}
+
+.action-text {
+    font-weight: 500;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-completed { 
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+}
+
+.status-processing { 
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.status-failed { 
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.badge-admin {
+    background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+    color: white;
+}
+
+.badge-user {
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .dashboard-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-title {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container admin-dashboard">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">
+            <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+        </h1>
+        <p class="dashboard-subtitle">
+            Manage users, track videos, and monitor platform activity
+        </p>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number">{{ total_users }}</div>
+            <div class="stat-label">Total Users</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i> +{{ recent_users|length }} this week
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="stat-number">{{ total_videos }}</div>
+            <div class="stat-label">Total Videos</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i> +{{ recent_videos|length }} recent
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-number">{{ completed_videos }}</div>
+            <div class="stat-label">Completed</div>
+            <div class="stat-change positive">
+                <i class="fas fa-chart-line"></i> {{ ((completed_videos / total_videos * 100) if total_videos > 0 else 0)|round }}% success rate
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <div class="stat-number">{{ admin_users }}</div>
+            <div class="stat-label">Admin Users</div>
+            <div class="stat-change">
+                <i class="fas fa-info-circle"></i> {{ regular_users }} regular users
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="/manage/users" class="action-btn">
+            <div class="action-icon">
+                <i class="fas fa-users-cog"></i>
+            </div>
+            <div class="action-text">Manage Users</div>
+        </a>
+
+        <a href="{{ url_for('gallery') }}" class="action-btn">
+            <div class="action-icon">
+                <i class="fas fa-photo-video"></i>
+            </div>
+            <div class="action-text">View Gallery</div>
+        </a>
+
+        <a href="/admin" class="action-btn">
+            <div class="action-icon">
+                <i class="fas fa-database"></i>
+            </div>
+            <div class="action-text">Database Admin</div>
+        </a>
+
+        <a href="{{ url_for('create') }}" class="action-btn">
+            <div class="action-icon">
+                <i class="fas fa-plus-circle"></i>
+            </div>
+            <div class="action-text">Create Video</div>
+        </a>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <!-- Recent Users -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-user-plus"></i> Recent Users
+                </h3>
+                <a href="/manage/users" class="section-action">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <ul class="activity-list">
+                {% for user in recent_users %}
+                <li class="activity-item">
+                    <div class="activity-avatar">
+                        {{ user.username[0].upper() }}
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">{{ user.username }}</div>
+                        <div class="activity-meta">
+                            {{ user.email or 'No email' }}
+                            {% if user.is_admin %}
+                                <span class="status-badge badge-admin">Admin</span>
+                            {% else %}
+                                <span class="status-badge badge-user">User</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="activity-time">
+                        {{ user.created_at.strftime('%b %d') }}
+                    </div>
+                </li>
+                {% endfor %}
+                {% if not recent_users %}
+                <li class="activity-item">
+                    <div style="text-align: center; color: var(--text-secondary); width: 100%;">
+                        No recent users found
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- Recent Videos -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-video"></i> Recent Videos
+                </h3>
+                <a href="{{ url_for('gallery') }}" class="section-action">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <ul class="activity-list">
+                {% for video in recent_videos %}
+                <li class="activity-item">
+                    <div class="activity-avatar">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">
+                            {{ video.description[:30] }}{% if video.description|length > 30 %}...{% endif %}
+                        </div>
+                        <div class="activity-meta">
+                            By: {{ video.user.username if video.user else 'Unknown' }}
+                            <span class="status-badge status-{{ video.status }}">
+                                {{ video.status.title() }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="activity-time">
+                        {{ video.created_at.strftime('%b %d') }}
+                    </div>
+                </li>
+                {% endfor %}
+                {% if not recent_videos %}
+                <li class="activity-item">
+                    <div style="text-align: center; color: var(--text-secondary); width: 100%;">
+                        No recent videos found
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Top Users -->
+    <div class="dashboard-section" style="margin-bottom: 3rem;">
+        <div class="section-header">
+            <h3 class="section-title">
+                <i class="fas fa-trophy"></i> Top Content Creators
+            </h3>
+        </div>
+        <ul class="activity-list">
+            {% for user, video_count in top_users %}
+            <li class="activity-item">
+                <div class="activity-avatar">
+                    {{ user.username[0].upper() }}
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">{{ user.username }}</div>
+                    <div class="activity-meta">
+                        {{ user.email or 'No email' }}
+                        {% if user.is_admin %}
+                            <span class="status-badge badge-admin">Admin</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="activity-time">
+                    <strong>{{ video_count }} videos</strong>
+                </div>
+            </li>
+            {% endfor %}
+            {% if not top_users %}
+            <li class="activity-item">
+                <div style="text-align: center; color: var(--text-secondary); width: 100%;">
+                    No users found
+                </div>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Status Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="color: #10b981;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-number">{{ completed_videos }}</div>
+            <div class="stat-label">Completed Videos</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: #f59e0b;">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-number">{{ processing_videos }}</div>
+            <div class="stat-label">Processing Videos</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: #ef4444;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-number">{{ failed_videos }}</div>
+            <div class="stat-label">Failed Videos</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: #8b5cf6;">
+                <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stat-number">{{ ((completed_videos / total_videos * 100) if total_videos > 0 else 0)|round }}%</div>
+            <div class="stat-label">Success Rate</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
