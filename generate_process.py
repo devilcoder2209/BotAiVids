@@ -47,7 +47,9 @@ def create_reel(folder):
     if not os.path.exists(audio_path) or os.path.getsize(audio_path) == 0:
         print(f"[ERROR] audio.mp3 is missing or empty for {folder}")
         return
-    command = f'''ffmpeg -y -f concat -safe 0 -i user_uploads/{folder}/input.txt -i user_uploads/{folder}/audio.mp3 -c:v libx264 -c:a aac -strict experimental static/reels/{folder}.mp4'''
+    command = f'''ffmpeg -y -f concat -safe 0 -i user_uploads/8ccd7dda-76e6-11f0-a479-8c6e3e2c6535/input.txt \
+-i user_uploads/8ccd7dda-76e6-11f0-a479-8c6e3e2c6535/audio.mp3 \
+-c:v libx264 -pix_fmt yuv420p -c:a aac -shortest static/reels/8ccd7dda-76e6-11f0-a479-8c6e3e2c6535.mp4'''
     print(f"[DEBUG] Running ffmpeg command: {command}")
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
