@@ -1,0 +1,49 @@
+# Ignore unnecessary files during deployment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Local development files
+.env.local
+.env.development
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git files
+.git/
+.gitignore
+
+# Documentation
+*.md
+README.md
+DEPLOYMENT_NOTES.md
+
+# Test files
+test_*.py
+*_test.py
+tests/
+
+# Local uploads (will be recreated)
+user_uploads/
+static/reels/
+
+# Cache directories
+.cache/
+pip-cache/
