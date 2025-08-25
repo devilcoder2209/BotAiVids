@@ -187,7 +187,7 @@ def create_reel(folder):
     print(f"[DEBUG] input.txt contents:\n{''.join(lines)}")
     
     # Check that all referenced files exist and are valid images
-    import imghdr
+    from PIL import Image
     missing_files = []
     invalid_images = []
     for line in lines:
@@ -197,7 +197,11 @@ def create_reel(folder):
             if not os.path.exists(img_path):
                 missing_files.append(img_file)
             else:
-                if imghdr.what(img_path) is None:
+                # Check if file is a valid image using Pillow (more reliable than imghdr)
+                try:
+                    with Image.open(img_path) as img:
+                        img.verify()  # Verify it's a valid image
+                except Exception:
                     invalid_images.append(img_file)
     if missing_files:
         print(f"[ERROR] The following files referenced in input.txt are missing: {missing_files}")
