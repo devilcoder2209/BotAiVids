@@ -74,17 +74,84 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 
 class SecureModelView(ModelView):
+    # Enhanced security and styling
     def is_accessible(self):
         from flask_login import current_user
         return current_user.is_authenticated and current_user.username == 'admin'
+    
     def inaccessible_callback(self, name, **kwargs):
         from flask import redirect, url_for, flash
         flash('Admin access required.', 'danger')
         return redirect(url_for('login'))
+    
+    # Better column formatting
+    can_view_details = True
+    can_export = True
+    can_set_page_size = True
+    page_size = 25
+    
+    # Enable search
+    column_searchable_list = ['id']
+    column_filters = ['created_at']
+    
+    # Better form display
+    form_widget_args = {
+        'description': {
+            'rows': 4,
+            'style': 'min-height: 120px;'
+        }
+    }
 
-admin = Admin(app, name='Admin Portal', template_mode='bootstrap4')
-admin.add_view(SecureModelView(User, db.session))
-admin.add_view(SecureModelView(Video, db.session))
+class UserModelView(SecureModelView):
+    # User-specific configurations
+    column_list = ['id', 'username', 'email', 'is_admin', 'created_at']
+    column_searchable_list = ['username', 'email']
+    column_filters = ['is_admin', 'created_at']
+    column_labels = {
+        'is_admin': 'Admin Status',
+        'created_at': 'Registered'
+    }
+    
+    # Form configurations
+    form_columns = ['username', 'email', 'is_admin']
+    form_widget_args = {
+        'password': {
+            'placeholder': 'Leave blank to keep current password'
+        }
+    }
+
+class VideoModelView(SecureModelView):
+    # Video-specific configurations
+    column_list = ['id', 'uuid', 'user', 'description', 'status', 'created_at', 'updated_at']
+    column_searchable_list = ['uuid', 'description']
+    column_filters = ['status', 'created_at', 'user']
+    column_labels = {
+        'uuid': 'Video ID',
+        'cloudinary_url': 'Video URL',
+        'created_at': 'Created',
+        'updated_at': 'Updated'
+    }
+    
+    # Format columns
+    column_formatters = {
+        'description': lambda v, c, m, p: m.description[:50] + '...' if m.description and len(m.description) > 50 else m.description,
+        'status': lambda v, c, m, p: f'<span class="badge badge-{"success" if m.status == "completed" else "warning" if m.status == "processing" else "danger"}">{m.status.title()}</span>'
+    }
+    
+    # Form configurations
+    form_columns = ['user', 'description', 'status', 'cloudinary_url']
+
+# Initialize admin with custom base template
+admin = Admin(
+    app, 
+    name='AI Reel Admin Portal', 
+    template_mode='bootstrap4',
+    base_template='admin/index.html',
+    index_view=None
+)
+
+admin.add_view(UserModelView(User, db.session, name='Users', category='Management'))
+admin.add_view(VideoModelView(Video, db.session, name='Videos', category='Management'))
 
 from main import *
 

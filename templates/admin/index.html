@@ -1,0 +1,421 @@
+{% extends 'admin/master.html' %}
+
+{% block head_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block brand %}
+<a class="navbar-brand" href="{{ admin_view.admin.url }}">
+    <i class="fas fa-shield-alt"></i> AI Reel Admin
+</a>
+{% endblock %}
+
+{% block main_menu %}
+{{ super() }}
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('gallery') }}">
+        <i class="fas fa-photo-video"></i> Gallery
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('index') }}">
+        <i class="fas fa-home"></i> Home
+    </a>
+</li>
+{% endblock %}
+    --admin-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Body and Layout */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+/* Navigation */
+.navbar {
+    background: var(--admin-dark) !important;
+    border-bottom: 3px solid var(--admin-primary);
+    box-shadow: var(--admin-shadow-lg);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: white !important;
+    font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+    color: #d1d5db !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--admin-primary) !important;
+}
+
+/* Main Content */
+.container-fluid {
+    background: white;
+    margin: 2rem;
+    border-radius: 20px;
+    box-shadow: var(--admin-shadow-lg);
+    min-height: calc(100vh - 6rem);
+    padding: 2rem;
+}
+
+/* Page Headers */
+h1, h2, h3 {
+    color: var(--admin-dark);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.page-header {
+    border-bottom: 2px solid var(--admin-border);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Tables */
+.table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--admin-shadow);
+}
+
+.table thead {
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+    color: white;
+}
+
+.table thead th {
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background: #f8fafc;
+    transform: scale(1.01);
+    box-shadow: var(--admin-shadow);
+}
+
+.table td {
+    border-top: 1px solid #f1f5f9;
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+    box-shadow: var(--admin-shadow);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--admin-shadow-lg);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--admin-success), #059669);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--admin-warning), #d97706);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--admin-danger), #dc2626);
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Forms */
+.form-control {
+    border-radius: 8px;
+    border: 2px solid var(--admin-border);
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--admin-dark);
+    margin-bottom: 0.5rem;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--admin-shadow);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--admin-shadow-lg);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+    color: white;
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 12px;
+    border: none;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+}
+
+/* Status Badges */
+.badge {
+    border-radius: 20px;
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+    font-size: 0.75rem;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, var(--admin-success), #059669);
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, var(--admin-warning), #d97706);
+}
+
+.badge-danger {
+    background: linear-gradient(135deg, var(--admin-danger), #dc2626);
+}
+
+.badge-primary {
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+}
+
+/* Pagination */
+.pagination {
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.page-link {
+    border-radius: 8px;
+    margin: 0 2px;
+    border: none;
+    color: var(--admin-primary);
+    font-weight: 500;
+}
+
+.page-link:hover {
+    background: var(--admin-primary);
+    color: white;
+}
+
+.page-item.active .page-link {
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
+}
+
+/* Search and Filters */
+.form-inline .form-control {
+    margin-right: 0.5rem;
+}
+
+/* Model List Specific */
+.model-list {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+/* Model Actions */
+.model-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container-fluid {
+        margin: 1rem;
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        border-radius: 12px;
+    }
+    
+    .model-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Data Table Enhancements */
+.table tbody td {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.table tbody td:hover {
+    overflow: visible;
+    white-space: normal;
+    position: relative;
+    z-index: 10;
+}
+
+/* Loading States */
+.loading {
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0.4; }
+}
+
+/* Action Icons */
+.fa-edit { color: var(--admin-warning); }
+.fa-trash { color: var(--admin-danger); }
+.fa-eye { color: var(--admin-primary); }
+.fa-plus { color: var(--admin-success); }
+
+/* Success/Error Messages */
+.flashes {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    max-width: 400px;
+}
+
+.flashes .alert {
+    margin-bottom: 10px;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--admin-primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--admin-secondary);
+}
+</style>
+{% endblock %}
+
+{% block brand %}
+<a class="navbar-brand" href="{{ admin_view.admin.url }}">
+    <i class="fas fa-shield-alt"></i> AI Reel Admin
+</a>
+{% endblock %}
+
+{% block main_menu %}
+{{ super() }}
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('gallery') }}">
+        <i class="fas fa-photo-video"></i> Gallery
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('index') }}">
+        <i class="fas fa-home"></i> Home
+    </a>
+</li>
+{% endblock %}

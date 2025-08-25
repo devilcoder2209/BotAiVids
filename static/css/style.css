@@ -19,6 +19,178 @@
     color: #f472b6 !important;
     background: none !important;
 }
+
+/* ============================================
+   ADMIN PANEL GLOBAL IMPROVEMENTS
+   ============================================ */
+
+/* Admin Panel Font Improvements */
+.admin-view body,
+.admin-view .table,
+.admin-view .form-control,
+.admin-view .btn {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Better text rendering for admin */
+.admin-view {
+    line-height: 1.6;
+    letter-spacing: 0.025em;
+}
+
+.admin-view .table th,
+.admin-view .table td {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    padding: 1rem 0.75rem;
+    border-color: #f1f5f9;
+}
+
+.admin-view .table th {
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.05em;
+    color: #374151;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-bottom: 2px solid #e5e7eb;
+}
+
+/* Better form typography */
+.admin-view .form-control,
+.admin-view .form-select {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.admin-view .form-control:focus,
+.admin-view .form-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    outline: none;
+}
+
+/* Label improvements */
+.admin-view label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+/* Button text improvements */
+.admin-view .btn {
+    font-weight: 500;
+    letter-spacing: 0.025em;
+    border-radius: 8px;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+}
+
+/* Pagination text */
+.admin-view .pagination .page-link {
+    font-weight: 500;
+    color: #6366f1;
+    border: none;
+    margin: 0 2px;
+    border-radius: 6px;
+}
+
+/* Alert text improvements */
+.admin-view .alert {
+    font-weight: 500;
+    border-radius: 8px;
+    border: none;
+}
+
+/* Breadcrumb improvements */
+.admin-view .breadcrumb {
+    background: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+.admin-view .breadcrumb-item a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.admin-view .breadcrumb-item.active {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+/* Search and filter improvements */
+.admin-view .form-inline .form-control {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Card improvements */
+.admin-view .card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.admin-view .card-header {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600;
+    border: none;
+}
+
+/* Table responsive improvements */
+.admin-view .table-responsive {
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Status badge improvements */
+.admin-view .badge {
+    font-weight: 500;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+}
+
+/* Loading state improvements */
+.admin-view .loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Mobile responsiveness for admin */
+@media (max-width: 768px) {
+    .admin-view .table {
+        font-size: 0.85rem;
+    }
+    
+    .admin-view .table th,
+    .admin-view .table td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .admin-view .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .admin-view .form-control {
+        font-size: 0.95rem;
+    }
+}
+
+/* ============================================
+   END ADMIN PANEL IMPROVEMENTS
+   ============================================ */
 /* Extra mobile responsiveness for 480px and below */
 @media (max-width: 480px) {
     .hero-title {
