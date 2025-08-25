@@ -1,6 +1,7 @@
 Flask
 Flask-Login
 Flask-SQLAlchemy
+Flask-Admin
 gunicorn
 psycopg2-binary
 requests
