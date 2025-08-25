@@ -3,20 +3,11 @@ services:
     name: botaivids-app
     env: python
     plan: free
-    branch: main
-    region: oregon
-    pythonVersion: "3.11"
     buildCommand: |
       apt-get update && apt-get install -y ffmpeg
-      pip install --upgrade pip
       pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120
+    startCommand: gunicorn app:app
     autoDeploy: true
-    healthCheckPath: /
-    disk:
-      name: uploads
-      mountPath: /app/user_uploads
-      sizeGB: 1
 
 databases:
   - name: botaivids-db
