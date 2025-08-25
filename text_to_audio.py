@@ -7,12 +7,8 @@ load_dotenv()
 
 ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
 if not ELEVENLABS_API_KEY:
-    try:
-        from config import ELEVENLABS_API_KEY as ELEVENLABS_API_KEY_FALLBACK
-        ELEVENLABS_API_KEY = ELEVENLABS_API_KEY_FALLBACK
-    except Exception:
-        print("[ERROR] No ElevenLabs API key found in environment or config")
-        ELEVENLABS_API_KEY = None
+    print("[ERROR] No ElevenLabs API key found in environment variables")
+    ELEVENLABS_API_KEY = None
 
 
 def text_to_speech_file(text: str, folder: str) -> str:
