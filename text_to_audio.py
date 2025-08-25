@@ -1,8 +1,6 @@
 import os
-import uuid
+import requests
 from dotenv import load_dotenv
-from elevenlabs import VoiceSettings
-from elevenlabs.client import ElevenLabs
 
 # Load environment variables
 load_dotenv()
@@ -16,15 +14,13 @@ if not ELEVENLABS_API_KEY:
         print("[ERROR] No ElevenLabs API key found in environment or config")
         ELEVENLABS_API_KEY = None
 
-elevenlabs = ElevenLabs(api_key=ELEVENLABS_API_KEY) if ELEVENLABS_API_KEY else None
-
 
 def text_to_speech_file(text: str, folder: str) -> str:
     try:
         print(f"[DEBUG] text_to_speech_file called for folder: {folder}")
         
-        if not elevenlabs:
-            print("[ERROR] ElevenLabs client not initialized - missing API key")
+        if not ELEVENLABS_API_KEY:
+            print("[ERROR] ElevenLabs API key not found")
             return ""
         
         folder_path = os.path.join("user_uploads", folder)
@@ -32,38 +28,46 @@ def text_to_speech_file(text: str, folder: str) -> str:
             print(f"[DEBUG] Folder {folder_path} does not exist. Creating...")
             os.makedirs(folder_path, exist_ok=True)
             
-        response = elevenlabs.text_to_speech.convert(
-            voice_id="pNInz6obpgDQGcFmaJgB",
-            output_format="mp3_22050_32",
-            text=text,
-            model_id="eleven_turbo_v2_5",
-            voice_settings=VoiceSettings(
-                stability=0.0,
-                similarity_boost=1.0,
-                style=0.0,
-                use_speaker_boost=True,
-                speed=1.0,
-            ),
-        )
-        save_file_path = os.path.join(folder_path, "audio.mp3")
-        print(f"[DEBUG] Saving audio to: {save_file_path}")
+        # ElevenLabs API endpoint
+        voice_id = "pNInz6obpgDQGcFmaJgB"  # Adam voice
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
         
-        with open(save_file_path, "wb") as f:
-            chunk_written = False
-            for chunk in response:
-                if chunk:
-                    f.write(chunk)
-                    chunk_written = True
-                    
-        if chunk_written:
-            print(f"{save_file_path}: A new audio file was saved successfully!")
-        else:
-            print(f"[ERROR] No audio data was written for {save_file_path}!")
+        headers = {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": ELEVENLABS_API_KEY
+        }
+        
+        data = {
+            "text": text,
+            "model_id": "eleven_turbo_v2_5",
+            "voice_settings": {
+                "stability": 0.0,
+                "similarity_boost": 1.0,
+                "style": 0.0,
+                "use_speaker_boost": True,
+                "speed": 1.0
+            },
+            "output_format": "mp3_22050_32"
+        }
+        
+        print(f"[DEBUG] Making API request to ElevenLabs...")
+        response = requests.post(url, json=data, headers=headers)
+        
+        if response.status_code == 200:
+            save_file_path = os.path.join(folder_path, "audio.mp3")
+            print(f"[DEBUG] Saving audio to: {save_file_path}")
             
-        return save_file_path
+            with open(save_file_path, "wb") as f:
+                f.write(response.content)
+                
+            print(f"{save_file_path}: A new audio file was saved successfully!")
+            return save_file_path
+        else:
+            print(f"[ERROR] ElevenLabs API error: {response.status_code} - {response.text}")
+            return ""
+            
     except Exception as e:
         print(f"[ERROR] Exception in text_to_speech_file: {e}")
         return ""
-
-#text_to_speech_file("THis is testing.", "b4d9d1cc-76c9-11f0-9036-8c6e3e2c6535")
 
