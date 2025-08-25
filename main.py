@@ -49,6 +49,69 @@ def debug_users():
     except Exception as e:
         return {"error": str(e)}
 
+@app.route("/debug-ffmpeg")
+def debug_ffmpeg():
+    """Test FFmpeg availability and functionality"""
+    import subprocess
+    import sys
+    
+    result = {
+        "ffmpeg_available": False,
+        "ffmpeg_version": None,
+        "codecs_available": {},
+        "test_result": None,
+        "system_info": {
+            "python_version": sys.version,
+            "environment": "Render.com" if os.environ.get('RENDER') else "Local",
+            "path_contains_ffmpeg": False
+        },
+        "errors": []
+    }
+    
+    # Test 1: Check FFmpeg availability
+    try:
+        ffmpeg_result = subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, timeout=10)
+        if ffmpeg_result.returncode == 0:
+            result["ffmpeg_available"] = True
+            version_line = ffmpeg_result.stdout.split('\n')[0]
+            result["ffmpeg_version"] = version_line
+        else:
+            result["errors"].append(f"FFmpeg version check failed: {ffmpeg_result.stderr}")
+    except FileNotFoundError:
+        result["errors"].append("FFmpeg binary not found in system PATH")
+    except subprocess.TimeoutExpired:
+        result["errors"].append("FFmpeg version check timed out")
+    except Exception as e:
+        result["errors"].append(f"FFmpeg version check error: {str(e)}")
+    
+    # Test 2: Check codecs if FFmpeg is available
+    if result["ffmpeg_available"]:
+        try:
+            codec_result = subprocess.run(['ffmpeg', '-codecs'], capture_output=True, text=True, timeout=10)
+            if codec_result.returncode == 0:
+                result["codecs_available"]["libx264"] = 'libx264' in codec_result.stdout
+                result["codecs_available"]["aac"] = 'aac' in codec_result.stdout
+        except Exception as e:
+            result["errors"].append(f"Codec check error: {str(e)}")
+        
+        # Test 3: Basic functionality test
+        try:
+            test_cmd = ['ffmpeg', '-f', 'lavfi', '-i', 'testsrc=duration=1:size=320x240:rate=1', 
+                       '-f', 'null', '-']
+            test_result = subprocess.run(test_cmd, capture_output=True, text=True, timeout=15)
+            result["test_result"] = {
+                "success": test_result.returncode == 0,
+                "output": test_result.stderr[-500:] if test_result.stderr else "No output"
+            }
+        except Exception as e:
+            result["errors"].append(f"Basic functionality test error: {str(e)}")
+    
+    # Check PATH
+    path_env = os.environ.get('PATH', '')
+    result["system_info"]["path_contains_ffmpeg"] = any('ffmpeg' in p.lower() for p in path_env.split(os.pathsep))
+    
+    return jsonify(result)
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":

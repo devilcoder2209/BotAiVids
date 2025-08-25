@@ -122,6 +122,26 @@ def create_reel(folder):
 -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest {output_video_path}'''
     
     print(f"[DEBUG] Running ffmpeg command: {command}")
+    
+    # First, check if FFmpeg is available
+    try:
+        ffmpeg_check = subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True)
+        if ffmpeg_check.returncode != 0:
+            print(f"[ERROR] FFmpeg not available or not working properly")
+            print(f"[FFMPEG CHECK STDERR]: {ffmpeg_check.stderr}")
+            update_video_status(folder, 'failed')
+            return None
+        else:
+            print(f"[DEBUG] FFmpeg is available: {ffmpeg_check.stdout.split('version')[1].split('Copyright')[0].strip()}")
+    except FileNotFoundError:
+        print("[ERROR] FFmpeg binary not found in system PATH")
+        update_video_status(folder, 'failed')
+        return None
+    except Exception as e:
+        print(f"[ERROR] Error checking FFmpeg availability: {e}")
+        update_video_status(folder, 'failed')
+        return None
+    
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         print(f"[FFMPEG STDOUT]:\n{result.stdout}")
@@ -136,6 +156,10 @@ def create_reel(folder):
                 print("[ERROR] Input file not found - check if all referenced files exist")
             elif "Invalid argument" in result.stderr:
                 print("[ERROR] Invalid FFmpeg parameters - check input format and codec settings")
+            elif "ffmpeg: not found" in result.stderr or "command not found" in result.stderr:
+                print("[ERROR] FFmpeg binary not found - check if FFmpeg is properly installed")
+            else:
+                print("[ERROR] Unknown FFmpeg error - check the stderr output above")
             # Update database with failed status
             update_video_status(folder, 'failed')
             return None
