@@ -3,11 +3,16 @@ import uuid
 from dotenv import load_dotenv
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
-from config import ELEVENLABS_API_KEY
+import os
+ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
+if not ELEVENLABS_API_KEY:
+    try:
+        from config import ELEVENLABS_API_KEY as ELEVENLABS_API_KEY_FALLBACK
+        ELEVENLABS_API_KEY = ELEVENLABS_API_KEY_FALLBACK
+    except Exception:
+        ELEVENLABS_API_KEY = None
 
-elevenlabs = ElevenLabs(
-    api_key=ELEVENLABS_API_KEY,
-)
+elevenlabs = ElevenLabs(api_key=ELEVENLABS_API_KEY) if ELEVENLABS_API_KEY else None
 
 
 def text_to_speech_file(text: str, folder: str) -> str:
