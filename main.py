@@ -1,10 +1,30 @@
 import os
 import uuid
+import sys
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_
+
+# Safety check for Python version and deprecated modules
+print(f"[SYSTEM] Python version: {sys.version}")
+print(f"[SYSTEM] Python version info: {sys.version_info}")
+
+# Check for deprecated imghdr module
+try:
+    import imghdr
+    print("[WARNING] imghdr module is still available but deprecated")
+except ImportError:
+    print("[INFO] imghdr module not available (expected in Python 3.13+)")
+
+# Verify mimetypes is working
+try:
+    import mimetypes
+    print("[INFO] mimetypes module loaded successfully")
+except ImportError as e:
+    print(f"[ERROR] mimetypes module failed to load: {e}")
+    sys.exit(1)
 
 # Try to import PIL for image optimization, fallback if not available
 try:

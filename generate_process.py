@@ -2,10 +2,14 @@
 import os
 import time
 import subprocess
+import sys
 import cloudinary
 import cloudinary.uploader
 from dotenv import load_dotenv
 from text_to_audio import text_to_speech_file
+
+# Safety check for Python version compatibility
+print(f"[GENERATE] Python version: {sys.version_info}")
 
 # Load environment variables
 load_dotenv()
