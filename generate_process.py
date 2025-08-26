@@ -161,9 +161,16 @@ def create_reel(folder):
     
     # Check audio.mp3 exists and is not empty
     audio_path = f"user_uploads/{folder}/audio.mp3"
-    if not os.path.exists(audio_path) or os.path.getsize(audio_path) == 0:
-        print(f"[ERROR] audio.mp3 is missing or empty for {folder}")
+    if not os.path.exists(audio_path):
+        print(f"[ERROR] audio.mp3 is missing for {folder}")
         return None
+    
+    audio_size = os.path.getsize(audio_path)
+    if audio_size == 0:
+        print(f"[ERROR] audio.mp3 is empty for {folder}")
+        return None
+    
+    print(f"[DEBUG] Audio file verified: {audio_path} ({audio_size} bytes)")
     
     # Calculate total video duration from input.txt
     video_duration = 0
@@ -209,12 +216,31 @@ def create_reel(folder):
             return None
         
         # Check if output file was actually created and has content
-        if not os.path.exists(output_video_path) or os.path.getsize(output_video_path) == 0:
-            print(f"[ERROR] Output video file was not created or is empty: {output_video_path}")
+        if not os.path.exists(output_video_path):
+            print(f"[ERROR] Output video file was not created: {output_video_path}")
+            update_video_status(folder, 'failed')
+            return None
+        
+        output_size = os.path.getsize(output_video_path)
+        if output_size == 0:
+            print(f"[ERROR] Output video file is empty: {output_video_path}")
             update_video_status(folder, 'failed')
             return None
             
-        print(f"[SUCCESS] Video created successfully: {output_video_path} ({os.path.getsize(output_video_path)} bytes)")
+        print(f"[SUCCESS] Video created successfully: {output_video_path} ({output_size} bytes)")
+        
+        # Verify the video contains audio streams
+        try:
+            # Quick check to verify video has audio stream
+            probe_cmd = ['ffprobe', '-v', 'quiet', '-select_streams', 'a', '-show_entries', 'stream=codec_name', '-of', 'csv=p=0', output_video_path]
+            probe_result = subprocess.run(probe_cmd, capture_output=True, text=True)
+            if probe_result.returncode == 0 and probe_result.stdout.strip():
+                print(f"[DEBUG] Video has audio stream: {probe_result.stdout.strip()}")
+            else:
+                print(f"[WARNING] Video may not have audio stream - probe result: {probe_result.stderr}")
+        except Exception as probe_error:
+            print(f"[WARNING] Could not probe video for audio: {probe_error}")
+            
         print(f"Creating reel for {folder}...")
         
         # Upload to Cloudinary
