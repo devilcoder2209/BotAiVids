@@ -47,7 +47,7 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
     
     # Relationship with videos
-    videos = db.relationship('Video', backref='user', lazy=True)
+    videos = db.relationship('Video', back_populates='user', lazy=True)
 
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -62,6 +62,9 @@ class Video(db.Model):
     duration = db.Column(db.Float, nullable=True)
     size = db.Column(db.Integer, nullable=True)
     format = db.Column(db.String(10), nullable=True)
+    
+    # Relationship to User
+    user = db.relationship('User', back_populates='videos')
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -122,11 +125,12 @@ class UserModelView(SecureModelView):
 
 class VideoModelView(SecureModelView):
     # Video-specific configurations
-    column_list = ['id', 'uuid', 'user_id', 'description', 'status', 'created_at', 'updated_at']
+    column_list = ['id', 'uuid', 'user.username', 'description', 'status', 'created_at', 'updated_at']
     column_searchable_list = ['uuid', 'description']
     column_filters = ['status', 'created_at', 'user_id']
     column_labels = {
         'uuid': 'Video ID',
+        'user.username': 'User',
         'user_id': 'User ID',
         'cloudinary_url': 'Video URL',
         'created_at': 'Created',
@@ -139,7 +143,7 @@ class VideoModelView(SecureModelView):
         'status': lambda v, c, m, p: f'<span class="badge badge-{"success" if m.status == "completed" else "warning" if m.status == "processing" else "danger"}">{m.status.title()}</span>'
     }
     
-    # Form configurations - removed 'user' field since it doesn't exist
+    # Form configurations
     form_columns = ['user_id', 'description', 'status', 'cloudinary_url']
 
 # Initialize admin with custom base template

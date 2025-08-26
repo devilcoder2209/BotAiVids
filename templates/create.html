@@ -165,11 +165,29 @@ body {
                     <input name="uuid" type="hidden" value="{{ myid }}" />
                 </div>
                 <div id="preview" class="mb-3"></div>
+                
+                <!-- Duration Selection -->
+                <div class="mb-3">
+                    <label for="duration" class="form-label">Duration per Image:</label>
+                    <select name="duration" id="duration" class="form-control">
+                        <option value="2">2 seconds (Fast pace)</option>
+                        <option value="3" selected>3 seconds (Default)</option>
+                        <option value="4">4 seconds (Moderate)</option>
+                        <option value="5">5 seconds (Slow pace)</option>
+                        <option value="6">6 seconds (Very slow)</option>
+                    </select>
+                    <small class="form-text text-muted">Choose how long each image should be displayed in your video</small>
+                </div>
+                
                 <div class="text-input-container">
                     <textarea class="text-input" id="textInput" name="text" placeholder="Enter your text to be added as voice here..." rows="4"></textarea>
                     <div class="alert alert-info mt-2" style="background: rgba(13, 110, 253, 0.1); border: 1px solid rgba(13, 110, 253, 0.3); border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #0d6efd !important;">
                         <i class="fas fa-info-circle me-2" style="color: #0d6efd !important;"></i>
                         <strong style="color: #0d6efd !important;">Note:</strong> <span style="color: #0d6efd !important;">Text-to-speech is currently limited due to API restrictions. Your video will be created with background audio or silent track.</span>
+                    </div>
+                    <div class="alert alert-success mt-2" style="background: rgba(25, 135, 84, 0.1); border: 1px solid rgba(25, 135, 84, 0.3); border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #198754 !important;">
+                        <i class="fas fa-cloud-upload-alt me-2" style="color: #198754 !important;"></i>
+                        <strong style="color: #198754 !important;">Cloud Storage:</strong> <span style="color: #198754 !important;">Your videos are automatically saved to Cloudinary cloud storage for permanent access. Local files are cleaned up after processing.</span>
                     </div>
                 </div>
                 <div class="d-flex justify-content-center mt-4">
@@ -188,9 +206,36 @@ body {
 <script>
 // Preview and remove selected files before upload
 const filesInput = document.getElementById('files');
+const durationSelect = document.getElementById('duration');
 const preview = document.getElementById('preview');
 let fileList = [];
 
+// Update video duration preview when files or duration changes
+function updateDurationPreview() {
+    const imageCount = fileList.length;
+    const durationPerImage = parseInt(durationSelect.value);
+    const totalDuration = imageCount * durationPerImage;
+    
+    // Add duration info to preview
+    const existingInfo = document.getElementById('duration-info');
+    if (existingInfo) existingInfo.remove();
+    
+    if (imageCount > 0) {
+        const durationInfo = document.createElement('div');
+        durationInfo.id = 'duration-info';
+        durationInfo.className = 'alert alert-secondary mt-2';
+        durationInfo.style.background = 'rgba(108, 117, 125, 0.1)';
+        durationInfo.style.border = '1px solid rgba(108, 117, 125, 0.3)';
+        durationInfo.style.borderRadius = '8px';
+        durationInfo.style.padding = '12px';
+        durationInfo.style.fontSize = '0.9rem';
+        durationInfo.innerHTML = `
+            <i class="fas fa-clock me-2"></i>
+            <strong>Video Preview:</strong> ${imageCount} image(s) × ${durationPerImage}s each = <strong>${totalDuration} seconds total</strong>
+        `;
+        preview.appendChild(durationInfo);
+    }
+}
 
 filesInput.addEventListener('change', function(e) {
     // Append new files to fileList, avoiding duplicates
@@ -203,7 +248,10 @@ filesInput.addEventListener('change', function(e) {
     });
     updateInputFiles();
     renderPreview();
+    updateDurationPreview();
 });
+
+durationSelect.addEventListener('change', updateDurationPreview);
 
 function renderPreview() {
     preview.innerHTML = '';
@@ -221,6 +269,7 @@ window.removeFile = function(idx) {
     fileList.splice(idx, 1);
     updateInputFiles();
     renderPreview();
+    updateDurationPreview();
 }
 
 function updateInputFiles() {

@@ -126,6 +126,9 @@ def create():
         try:
             rec_id = request.form.get("uuid")
             desc = request.form.get("text")
+            duration = int(request.form.get("duration", 3))  # Default to 3 seconds
+            
+            print(f"[DEBUG] User selected duration: {duration} seconds per image")
             
             if not rec_id or not desc:
                 flash("Missing required fields.", "error")
@@ -161,10 +164,10 @@ def create():
             db.session.add(video)
             db.session.commit()
             
-            # Write input.txt
+            # Write input.txt with user-selected duration
             with open(os.path.join(upload_path, "input.txt"), "w") as fl:
                 for f in input_files:
-                    fl.write(f"file '{f}'\nduration 3\n")
+                    fl.write(f"file '{f}'\nduration {duration}\n")
             
             # Call processing functions
             try:

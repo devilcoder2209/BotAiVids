@@ -10,6 +10,39 @@ from text_to_audio import text_to_speech_file
 # Load environment variables
 load_dotenv()
 
+def cleanup_local_files(folder, output_video_path):
+    """
+    Clean up local files after successful Cloudinary upload.
+    Important for Render's ephemeral storage to avoid disk space issues.
+    """
+    try:
+        # Remove the output video file
+        if os.path.exists(output_video_path):
+            os.remove(output_video_path)
+            print(f"[CLEANUP] Removed local video file: {output_video_path}")
+        
+        # Remove uploaded images and audio (keeping description.txt and input.txt for debugging)
+        user_folder = f"user_uploads/{folder}"
+        if os.path.exists(user_folder):
+            for file in os.listdir(user_folder):
+                file_path = os.path.join(user_folder, file)
+                # Keep text files for potential debugging, remove media files
+                if file.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.mp3', '.wav')):
+                    try:
+                        os.remove(file_path)
+                        print(f"[CLEANUP] Removed: {file_path}")
+                    except Exception as e:
+                        print(f"[CLEANUP WARNING] Could not remove {file_path}: {e}")
+            
+            # If folder is empty (except text files), it will be cleaned up by OS eventually
+            remaining_files = [f for f in os.listdir(user_folder) 
+                             if not f.lower().endswith(('.txt',))]
+            if not remaining_files:
+                print(f"[CLEANUP] Folder {user_folder} cleaned of media files")
+                
+    except Exception as e:
+        print(f"[CLEANUP ERROR] Failed to cleanup files: {e}")
+
 # Configure Cloudinary
 cloudinary_url = os.getenv('CLOUDINARY_URL')
 if cloudinary_url:
@@ -110,16 +143,26 @@ def create_reel(folder):
         print(f"[ERROR] audio.mp3 is missing or empty for {folder}")
         return None
     
+    # Calculate total video duration from input.txt
+    video_duration = 0
+    for line in lines:
+        if line.strip().startswith("duration "):
+            video_duration += float(line.strip().split()[1])
+    
+    print(f"[DEBUG] Total video duration: {video_duration} seconds")
+    
     # Create output directory for reels if it doesn't exist
     os.makedirs("static/reels", exist_ok=True)
     output_video_path = f"static/reels/{folder}.mp4"
     
-    # Fix the ffmpeg command to use dynamic folder paths and ensure even dimensions
-    # The scale filter ensures both width and height are even numbers (required for H.264)
-    command = f'''ffmpeg -y -f concat -safe 0 -i user_uploads/{folder}/input.txt \
--i user_uploads/{folder}/audio.mp3 \
+    # Enhanced ffmpeg command to loop audio to match video duration
+    # This ensures all images are shown even if audio is shorter
+    command = f'''ffmpeg -y \
+-f concat -safe 0 -i user_uploads/{folder}/input.txt \
+-stream_loop -1 -i user_uploads/{folder}/audio.mp3 \
 -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
--c:v libx264 -pix_fmt yuv420p -c:a aac -shortest {output_video_path}'''
+-c:v libx264 -pix_fmt yuv420p -c:a aac \
+-t {video_duration} {output_video_path}'''
     
     print(f"[DEBUG] Running ffmpeg command: {command}")
     try:
@@ -164,10 +207,8 @@ def create_reel(folder):
             # Update database with Cloudinary URL
             update_video_status(folder, 'completed', cloudinary_url)
             
-            # Clean up local file after upload
-            if os.path.exists(output_video_path):
-                os.remove(output_video_path)
-                print(f"[DEBUG] Local video file {output_video_path} removed")
+            # Clean up local files after successful upload (important for Render)
+            cleanup_local_files(folder, output_video_path)
                 
             return cloudinary_url
         except Exception as e:
