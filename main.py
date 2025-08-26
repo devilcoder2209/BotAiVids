@@ -353,6 +353,155 @@ def debug_ffmpeg():
     except Exception as e:
         return {"ffmpeg_available": False, "error": str(e), "error_type": type(e).__name__}
 
+@app.route("/debug-video-creation")
+def debug_video_creation():
+    """Test the complete video creation pipeline"""
+    import tempfile
+    import shutil
+    from text_to_audio import text_to_speech_file
+    from generate_process import create_reel
+    
+    # Create a test video creation scenario
+    test_id = "video-debug-" + str(uuid.uuid4())[:8]
+    test_folder = os.path.join("user_uploads", test_id)
+    
+    try:
+        # Create test folder
+        os.makedirs(test_folder, exist_ok=True)
+        
+        # Create a test image (simple colored rectangle)
+        test_image_path = os.path.join(test_folder, "test_image.jpg")
+        if PIL_AVAILABLE:
+            from PIL import Image
+            img = Image.new('RGB', (800, 600), color='blue')
+            img.save(test_image_path, 'JPEG')
+        else:
+            # Create a dummy file if PIL not available
+            with open(test_image_path, 'wb') as f:
+                f.write(b'dummy image content')
+        
+        # Create description.txt
+        test_description = "This is a test video for debugging"
+        with open(os.path.join(test_folder, "description.txt"), "w") as f:
+            f.write(test_description)
+        
+        # Create input.txt
+        with open(os.path.join(test_folder, "input.txt"), "w") as f:
+            f.write("file 'test_image.jpg'\nduration 3\n")
+        
+        response_data = {
+            "test_id": test_id,
+            "test_folder": test_folder,
+            "files_created": [],
+            "steps": {}
+        }
+        
+        # List initial files
+        if os.path.exists(test_folder):
+            response_data["files_created"] = os.listdir(test_folder)
+        
+        # Step 1: Test audio generation
+        try:
+            audio_result = text_to_speech_file(test_description, test_id)
+            audio_exists = os.path.exists(os.path.join(test_folder, "audio.mp3")) if audio_result else False
+            audio_size = os.path.getsize(os.path.join(test_folder, "audio.mp3")) if audio_exists else 0
+            
+            response_data["steps"]["audio_generation"] = {
+                "success": bool(audio_result),
+                "result_path": audio_result,
+                "file_exists": audio_exists,
+                "file_size": audio_size
+            }
+        except Exception as e:
+            response_data["steps"]["audio_generation"] = {
+                "success": False,
+                "error": str(e)
+            }
+        
+        # Step 2: Test video creation (without actually uploading to Cloudinary)
+        try:
+            # Simulate the video creation process without upload
+            import subprocess
+            
+            # Check if all required files exist
+            input_txt = os.path.join(test_folder, "input.txt")
+            audio_mp3 = os.path.join(test_folder, "audio.mp3")
+            
+            files_check = {
+                "input_txt_exists": os.path.exists(input_txt),
+                "audio_mp3_exists": os.path.exists(audio_mp3),
+                "test_image_exists": os.path.exists(test_image_path)
+            }
+            
+            response_data["steps"]["file_check"] = files_check
+            
+            if all(files_check.values()):
+                # Test FFmpeg command (dry run - create very short video)
+                output_path = f"/tmp/test_video_{test_id}.mp4" if os.name == "posix" else f"test_video_{test_id}.mp4"
+                
+                ffmpeg_cmd = [
+                    'ffmpeg', '-y',
+                    '-f', 'concat', '-safe', '0', '-i', input_txt,
+                    '-stream_loop', '-1', '-i', audio_mp3,
+                    '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+                    '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '28',
+                    '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '64k',
+                    '-threads', '2', '-t', '1.0',  # Only 1 second for testing
+                    output_path
+                ]
+                
+                ffmpeg_result = subprocess.run(ffmpeg_cmd, capture_output=True, text=True, timeout=30)
+                
+                response_data["steps"]["ffmpeg_test"] = {
+                    "command": ' '.join(ffmpeg_cmd),
+                    "return_code": ffmpeg_result.returncode,
+                    "success": ffmpeg_result.returncode == 0,
+                    "stdout": ffmpeg_result.stdout[:500],
+                    "stderr": ffmpeg_result.stderr[:500],
+                    "output_file_created": os.path.exists(output_path),
+                    "output_file_size": os.path.getsize(output_path) if os.path.exists(output_path) else 0
+                }
+                
+                # Cleanup test video
+                try:
+                    if os.path.exists(output_path):
+                        os.remove(output_path)
+                except:
+                    pass
+            else:
+                response_data["steps"]["ffmpeg_test"] = {
+                    "skipped": "Required files missing",
+                    "missing_files": [k for k, v in files_check.items() if not v]
+                }
+                
+        except Exception as e:
+            response_data["steps"]["video_creation"] = {
+                "success": False,
+                "error": str(e),
+                "error_type": type(e).__name__
+            }
+        
+        # Final file listing
+        if os.path.exists(test_folder):
+            response_data["final_files"] = os.listdir(test_folder)
+        
+        return response_data
+        
+    except Exception as e:
+        return {
+            "test_id": test_id,
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "success": False
+        }
+    finally:
+        # Cleanup test folder
+        try:
+            if os.path.exists(test_folder):
+                shutil.rmtree(test_folder)
+        except:
+            pass
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
