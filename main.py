@@ -76,6 +76,20 @@ def optimize_image_size(image_path, max_size_mb=10, max_dimension=1920):
 def home():
     return render_template("index.html")
 
+@app.route("/debug-env")
+def debug_env():
+    """Debug route to check environment variables in production"""
+    import os
+    return {
+        "elevenlabs_key_present": bool(os.environ.get('ELEVENLABS_API_KEY')),
+        "elevenlabs_key_length": len(os.environ.get('ELEVENLABS_API_KEY', '')),
+        "cloudinary_present": bool(os.environ.get('CLOUDINARY_CLOUD_NAME')),
+        "database_url_present": bool(os.environ.get('DATABASE_URL')),
+        "env_vars_count": len([k for k in os.environ.keys() if any(x in k.upper() for x in ['ELEVEN', 'CLOUDINARY', 'DATABASE', 'SECRET'])]),
+        "python_version": os.sys.version,
+        "platform": os.name
+    }
+
 @app.route("/debug-auth")
 def debug_auth():
     from flask import session

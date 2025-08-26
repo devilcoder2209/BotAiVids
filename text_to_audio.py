@@ -4,12 +4,15 @@ import subprocess
 import random
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables (for local development only)
 load_dotenv()
 
 ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
+print(f"[DEBUG] API Key loaded: {'Yes' if ELEVENLABS_API_KEY else 'No'}")
+print(f"[DEBUG] API Key length: {len(ELEVENLABS_API_KEY) if ELEVENLABS_API_KEY else 0}")
 if not ELEVENLABS_API_KEY:
     print("[ERROR] No ElevenLabs API key found in environment variables")
+    print("[DEBUG] Available env vars:", [k for k in os.environ.keys() if 'ELEVEN' in k])
     ELEVENLABS_API_KEY = None
 
 def create_fallback_audio(folder: str, duration: float = 3.0) -> str:
@@ -88,19 +91,53 @@ def text_to_speech_file(text: str, folder: str) -> str:
         }
         
         print(f"[DEBUG] Making API request to ElevenLabs...")
-        response = requests.post(url, json=data, headers=headers)
+        print(f"[DEBUG] URL: {url}")
+        print(f"[DEBUG] Headers: {dict(headers)}")
+        print(f"[DEBUG] Text length: {len(text)} characters")
+        
+        try:
+            response = requests.post(url, json=data, headers=headers, timeout=30)
+            print(f"[DEBUG] Response status: {response.status_code}")
+            print(f"[DEBUG] Response headers: {dict(response.headers)}")
+        except requests.exceptions.Timeout:
+            print("[ERROR] Request timeout - network connectivity issue")
+            print("[FALLBACK] Creating background audio instead...")
+            return create_fallback_audio(folder, 3.0)
+        except requests.exceptions.ConnectionError:
+            print("[ERROR] Connection error - cannot reach ElevenLabs API")
+            print("[FALLBACK] Creating background audio instead...")
+            return create_fallback_audio(folder, 3.0)
+        except Exception as req_error:
+            print(f"[ERROR] Request exception: {req_error}")
+            print("[FALLBACK] Creating background audio instead...")
+            return create_fallback_audio(folder, 3.0)
         
         if response.status_code == 200:
             save_file_path = os.path.join(folder_path, "audio.mp3")
             print(f"[DEBUG] Saving audio to: {save_file_path}")
+            print(f"[DEBUG] Audio content size: {len(response.content)} bytes")
             
             with open(save_file_path, "wb") as f:
                 f.write(response.content)
                 
-            print(f"{save_file_path}: A new audio file was saved successfully!")
-            return save_file_path
+            # Verify file was created and has content
+            if os.path.exists(save_file_path) and os.path.getsize(save_file_path) > 0:
+                print(f"[SUCCESS] Audio file saved successfully: {save_file_path}")
+                print(f"[SUCCESS] File size: {os.path.getsize(save_file_path)} bytes")
+                return save_file_path
+            else:
+                print(f"[ERROR] Audio file not created or empty")
+                print("[FALLBACK] Creating background audio instead...")
+                return create_fallback_audio(folder, 3.0)
         else:
-            print(f"[ERROR] ElevenLabs API error: {response.status_code} - {response.text}")
+            print(f"[ERROR] ElevenLabs API error: {response.status_code}")
+            print(f"[ERROR] Response text: {response.text}")
+            if response.status_code == 401:
+                print("[ERROR] Authentication failed - check API key")
+            elif response.status_code == 429:
+                print("[ERROR] Rate limit exceeded - too many requests")
+            elif response.status_code >= 500:
+                print("[ERROR] Server error on ElevenLabs side")
             print("[FALLBACK] Creating background audio instead...")
             return create_fallback_audio(folder, 3.0)
             
