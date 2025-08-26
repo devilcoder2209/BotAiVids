@@ -5,6 +5,201 @@
 {% block extra_css %} 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/create.css') }}">
 <style>
+/* Mobile-first responsive design improvements */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    
+    .upload-container {
+        margin: 0.5rem;
+        padding: 1.5rem 1rem;
+        border-radius: 16px;
+    }
+    
+    .upload-title {
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+    
+    .upload-instructions {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
+    
+    .form-label {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .text-input {
+        font-size: 1rem;
+        padding: 0.75rem;
+        border-radius: 12px;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    .form-control:focus, .text-input:focus {
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        border-color: #6366f1;
+        transform: none;
+    }
+    
+    .text-input {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        border-radius: 12px;
+        margin-top: 1.5rem;
+    }
+    
+    .glass-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 12px;
+        width: 100%;
+        text-align: center;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+    
+    .d-flex.flex-row.gap-3 {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+    
+    .alert {
+        font-size: 0.9rem;
+        padding: 0.75rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+    }
+    
+    #preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: flex-start;
+        margin-top: 1rem;
+    }
+    
+    .preview-thumb {
+        position: relative;
+        margin: 0 !important;
+    }
+    
+    .preview-thumb img {
+        height: 50px !important;
+        width: 50px !important;
+        object-fit: cover;
+        border-radius: 8px !important;
+    }
+    
+    .preview-thumb button {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 12px;
+        line-height: 1;
+    }
+    
+    /* Hide bokeh effects on mobile for better performance */
+    .bokeh {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .upload-section {
+        padding: 1rem 0;
+        min-height: auto;
+    }
+    
+    .upload-container {
+        margin: 0.25rem;
+        padding: 1rem 0.75rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .upload-title {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .upload-instructions {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        padding: 0;
+    }
+    
+    .form-control, .text-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 0.875rem 0.75rem;
+    }
+    
+    .text-input {
+        min-height: 80px;
+    }
+    
+    .submit-btn {
+        padding: 0.875rem;
+        font-size: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .glass-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .alert {
+        font-size: 0.85rem;
+        padding: 0.625rem;
+        margin-top: 0.75rem;
+    }
+    
+    .preview-thumb img {
+        height: 40px !important;
+        width: 40px !important;
+    }
+    
+    .preview-thumb button {
+        width: 18px !important;
+        height: 18px !important;
+        font-size: 10px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .submit-btn, .glass-btn {
+        min-height: 48px; /* Minimum touch target size */
+    }
+    
+    .form-control, .text-input {
+        min-height: 48px;
+    }
+    
+    .preview-thumb button {
+        min-width: 32px;
+        min-height: 32px;
+    }
+}
+
 /* Bokeh effects for create page */
 .bokeh {
     position: fixed;
@@ -139,63 +334,97 @@ body {
 
 {% if not current_user.is_authenticated %}
 <section class="upload-section">
-    <div class="container">
-        <div class="upload-container">
-            <h1 class="upload-title text-center">Login Required</h1>
-            <div class="d-flex flex-column align-items-center">
-                <div class="d-flex flex-row justify-content-center gap-3 mt-4 mb-2 w-100" style="max-width: 350px;">
-                    <a href="{{ url_for('login') }}" class="glass-btn flex-fill text-center">Login</a>
-                    <a href="{{ url_for('signup') }}" class="glass-btn flex-fill text-center">Sign Up</a>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-4">
+                <div class="upload-container">
+                    <h1 class="upload-title text-center">
+                        <i class="fas fa-lock mb-2 d-block"></i>
+                        Login Required
+                    </h1>
+                    <p class="upload-instructions text-center">Sign in to create amazing AI-powered video reels</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('login') }}" class="glass-btn">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                        <a href="{{ url_for('signup') }}" class="glass-btn">
+                            <i class="fas fa-user-plus me-2"></i>Sign Up
+                        </a>
+                    </div>
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Create an account to start making viral video content with AI
+                    </div>
                 </div>
-                <p class="upload-instructions text-center mt-3 mb-0 w-100">You must be logged in to create a reel.</p>
             </div>
         </div>
     </div>
 </section>
 {% else %}
 <section class="upload-section">
-    <div class="container">
-        <div class="upload-container">
-            <h1 class="upload-title text-center">Create Your Reel</h1>
-            <p class="upload-instructions text-center">Upload your video files to create an amazing reel. You can upload multiple files.</p>
-            <form action="/create" enctype="multipart/form-data" method="post" id="multiFileForm">
-                <div class="mb-3">
-                    <label for="files" class="form-label">Select Images (you can select multiple):</label>
-                    <input name="files" id="files" type="file" class="form-control" multiple accept="image/*">
-                    <input name="uuid" type="hidden" value="{{ myid }}" />
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+                <div class="upload-container">
+                    <h1 class="upload-title text-center">Create Your Reel</h1>
+                    <p class="upload-instructions text-center">Upload images to create an amazing reel with AI-generated voiceover.</p>
+                    <form action="/create" enctype="multipart/form-data" method="post" id="multiFileForm">
+                        <div class="mb-3">
+                            <label for="files" class="form-label">
+                                <i class="fas fa-images me-2"></i>Select Images
+                            </label>
+                            <input name="files" id="files" type="file" class="form-control" multiple accept="image/*" required>
+                            <input name="uuid" type="hidden" value="{{ myid }}" />
+                            <small class="form-text text-muted mt-1">You can select multiple images (JPG, PNG)</small>
+                        </div>
+                        
+                        <div id="preview" class="mb-3"></div>
+                        
+                        <!-- Duration Selection -->
+                        <div class="mb-3">
+                            <label for="duration" class="form-label">
+                                <i class="fas fa-clock me-2"></i>Duration per Image
+                            </label>
+                            <select name="duration" id="duration" class="form-control">
+                                <option value="2">⚡ 2 seconds (Fast pace)</option>
+                                <option value="3" selected>🎯 3 seconds (Default)</option>
+                                <option value="4">⏳ 4 seconds (Moderate)</option>
+                                <option value="5">🐌 5 seconds (Slow pace)</option>
+                                <option value="6">🔄 6 seconds (Very slow)</option>
+                            </select>
+                            <small class="form-text text-muted mt-1">Choose how long each image should be displayed</small>
+                        </div>
+                        
+                        <div class="text-input-container">
+                            <label for="textInput" class="form-label">
+                                <i class="fas fa-microphone me-2"></i>Voiceover Text
+                            </label>
+                            <textarea class="text-input" id="textInput" name="text" placeholder="Enter your text for AI voiceover..." rows="4" required></textarea>
+                            
+                            <div class="row mt-3">
+                                <div class="col-12 col-md-6 mb-2">
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-robot me-2"></i>
+                                        <strong>AI Voice:</strong> Your text will be converted to natural speech
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 mb-2">
+                                    <div class="alert alert-success mb-0">
+                                        <i class="fas fa-cloud me-2"></i>
+                                        <strong>Cloud Storage:</strong> Videos saved permanently to cloud
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="submit-btn" id="submitBtn">
+                                <i class="fas fa-magic me-2"></i>Create Reel
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div id="preview" class="mb-3"></div>
-                
-                <!-- Duration Selection -->
-                <div class="mb-3">
-                    <label for="duration" class="form-label">Duration per Image:</label>
-                    <select name="duration" id="duration" class="form-control">
-                        <option value="2">2 seconds (Fast pace)</option>
-                        <option value="3" selected>3 seconds (Default)</option>
-                        <option value="4">4 seconds (Moderate)</option>
-                        <option value="5">5 seconds (Slow pace)</option>
-                        <option value="6">6 seconds (Very slow)</option>
-                    </select>
-                    <small class="form-text text-muted">Choose how long each image should be displayed in your video</small>
-                </div>
-                
-                <div class="text-input-container">
-                    <textarea class="text-input" id="textInput" name="text" placeholder="Enter your text to be added as voice here..." rows="4"></textarea>
-                    <div class="alert alert-info mt-2" style="background: rgba(13, 110, 253, 0.1); border: 1px solid rgba(13, 110, 253, 0.3); border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #0d6efd !important;">
-                        <i class="fas fa-info-circle me-2" style="color: #0d6efd !important;"></i>
-                        <strong style="color: #0d6efd !important;">Text-to-Speech:</strong> <span style="color: #0d6efd !important;">Your text will be converted to speech and added as audio to your video.</span>
-                    </div>
-                    <div class="alert alert-success mt-2" style="background: rgba(25, 135, 84, 0.1); border: 1px solid rgba(25, 135, 84, 0.3); border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #198754 !important;">
-                        <i class="fas fa-cloud-upload-alt me-2" style="color: #198754 !important;"></i>
-                        <strong style="color: #198754 !important;">Cloud Storage:</strong> <span style="color: #198754 !important;">Your videos are automatically saved to Cloudinary cloud storage for permanent access. Local files are cleaned up after processing.</span>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-center mt-4">
-                    <button type="submit" class="submit-btn w-50" id="submitBtn">
-                        Create Reel
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </section>
@@ -204,11 +433,15 @@ body {
 
 {% block extra_js %}
 <script>
-// Preview and remove selected files before upload
+// Mobile-optimized preview and file management
 const filesInput = document.getElementById('files');
 const durationSelect = document.getElementById('duration');
 const preview = document.getElementById('preview');
+const submitBtn = document.getElementById('submitBtn');
 let fileList = [];
+
+// Check if device is mobile
+const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 // Update video duration preview when files or duration changes
 function updateDurationPreview() {
@@ -216,36 +449,66 @@ function updateDurationPreview() {
     const durationPerImage = parseInt(durationSelect.value);
     const totalDuration = imageCount * durationPerImage;
     
-    // Add duration info to preview
+    // Remove existing info
     const existingInfo = document.getElementById('duration-info');
     if (existingInfo) existingInfo.remove();
     
     if (imageCount > 0) {
         const durationInfo = document.createElement('div');
         durationInfo.id = 'duration-info';
-        durationInfo.className = 'alert alert-secondary mt-2';
+        durationInfo.className = 'alert alert-secondary mt-2 mb-0';
         durationInfo.style.background = 'rgba(108, 117, 125, 0.1)';
         durationInfo.style.border = '1px solid rgba(108, 117, 125, 0.3)';
         durationInfo.style.borderRadius = '8px';
-        durationInfo.style.padding = '12px';
-        durationInfo.style.fontSize = '0.9rem';
+        durationInfo.style.padding = isMobile ? '0.75rem' : '12px';
+        durationInfo.style.fontSize = isMobile ? '0.85rem' : '0.9rem';
+        
+        const pluralImages = imageCount === 1 ? 'image' : 'images';
         durationInfo.innerHTML = `
-            <i class="fas fa-clock me-2"></i>
-            <strong>Video Preview:</strong> ${imageCount} image(s) × ${durationPerImage}s each = <strong>${totalDuration} seconds total</strong>
+            <i class="fas fa-film me-2"></i>
+            <strong>Video Preview:</strong> ${imageCount} ${pluralImages} × ${durationPerImage}s = <strong>${totalDuration}s total</strong>
         `;
+        
         preview.appendChild(durationInfo);
+        
+        // Update submit button text
+        if (submitBtn) {
+            submitBtn.innerHTML = `<i class="fas fa-magic me-2"></i>Create ${totalDuration}s Reel`;
+        }
+    } else {
+        // Reset submit button
+        if (submitBtn) {
+            submitBtn.innerHTML = `<i class="fas fa-magic me-2"></i>Create Reel`;
+        }
     }
 }
 
+// Handle file selection with mobile optimizations
 filesInput.addEventListener('change', function(e) {
-    // Append new files to fileList, avoiding duplicates
     const newFiles = Array.from(filesInput.files);
-    // Only add files that are not already in fileList (by name and size)
-    newFiles.forEach(f => {
-        if (!fileList.some(existing => existing.name === f.name && existing.size === f.size)) {
-            fileList.push(f);
+    
+    // Validate file types and sizes
+    const validFiles = [];
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    
+    newFiles.forEach(file => {
+        if (!file.type.startsWith('image/')) {
+            alert(`"${file.name}" is not a valid image file. Please select JPG, PNG, or other image formats.`);
+            return;
+        }
+        
+        if (file.size > maxSize) {
+            alert(`"${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum size is 50MB.`);
+            return;
+        }
+        
+        // Avoid duplicates
+        if (!fileList.some(existing => existing.name === file.name && existing.size === file.size)) {
+            validFiles.push(file);
         }
     });
+    
+    fileList.push(...validFiles);
     updateInputFiles();
     renderPreview();
     updateDurationPreview();
@@ -255,14 +518,57 @@ durationSelect.addEventListener('change', updateDurationPreview);
 
 function renderPreview() {
     preview.innerHTML = '';
+    
+    if (fileList.length === 0) return;
+    
+    // Create container for images
+    const imageContainer = document.createElement('div');
+    imageContainer.className = 'd-flex flex-wrap gap-2 align-items-center justify-content-start mb-3';
+    imageContainer.style.maxHeight = isMobile ? '120px' : '150px';
+    imageContainer.style.overflowY = 'auto';
+    
     fileList.forEach((file, idx) => {
         const div = document.createElement('div');
-        div.className = 'preview-thumb';
-        div.style.display = 'inline-block';
-        div.style.margin = '0 10px 10px 0';
-        div.innerHTML = `<img src="${URL.createObjectURL(file)}" style="height:60px;border-radius:8px;box-shadow:0 2px 8px #0002;vertical-align:middle;"> <button type="button" onclick="removeFile(${idx})" style="border:none;background:#e83e8c;color:#fff;border-radius:50%;width:24px;height:24px;font-weight:bold;">×</button>`;
-        preview.appendChild(div);
+        div.className = 'preview-thumb position-relative';
+        div.style.flexShrink = '0';
+        
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.style.width = isMobile ? '50px' : '60px';
+        img.style.height = isMobile ? '50px' : '60px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '8px';
+        img.style.border = '2px solid rgba(99, 102, 241, 0.3)';
+        img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+        img.alt = file.name;
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn btn-danger btn-sm position-absolute';
+        removeBtn.style.top = '-8px';
+        removeBtn.style.right = '-8px';
+        removeBtn.style.width = isMobile ? '20px' : '24px';
+        removeBtn.style.height = isMobile ? '20px' : '24px';
+        removeBtn.style.borderRadius = '50%';
+        removeBtn.style.fontSize = isMobile ? '10px' : '12px';
+        removeBtn.style.lineHeight = '1';
+        removeBtn.style.padding = '0';
+        removeBtn.style.border = 'none';
+        removeBtn.innerHTML = '×';
+        removeBtn.onclick = () => removeFile(idx);
+        
+        div.appendChild(img);
+        div.appendChild(removeBtn);
+        imageContainer.appendChild(div);
     });
+    
+    // Add file count info
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'text-muted small';
+    fileInfo.innerHTML = `<i class="fas fa-images me-1"></i>${fileList.length} image(s) selected`;
+    
+    preview.appendChild(fileInfo);
+    preview.appendChild(imageContainer);
 }
 
 window.removeFile = function(idx) {
@@ -270,13 +576,94 @@ window.removeFile = function(idx) {
     updateInputFiles();
     renderPreview();
     updateDurationPreview();
+    
+    // Show feedback
+    if (fileList.length === 0) {
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-info alert-dismissible fade show position-fixed';
+        toast.style.top = '20px';
+        toast.style.right = '20px';
+        toast.style.zIndex = '9999';
+        toast.style.maxWidth = '300px';
+        toast.innerHTML = `
+            <i class="fas fa-info-circle me-2"></i>
+            All images removed. Please select new images.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 3000);
+    }
 }
 
 function updateInputFiles() {
-    // Create a new DataTransfer to update the input's files
     const dt = new DataTransfer();
     fileList.forEach(f => dt.items.add(f));
     filesInput.files = dt.files;
+}
+
+// Form validation
+document.getElementById('multiFileForm').addEventListener('submit', function(e) {
+    const textInput = document.getElementById('textInput');
+    
+    if (fileList.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one image before creating your reel.');
+        filesInput.focus();
+        return false;
+    }
+    
+    if (!textInput.value.trim()) {
+        e.preventDefault();
+        alert('Please enter some text for the AI voiceover.');
+        textInput.focus();
+        return false;
+    }
+    
+    if (textInput.value.trim().length < 10) {
+        e.preventDefault();
+        alert('Please enter at least 10 characters for a meaningful voiceover.');
+        textInput.focus();
+        return false;
+    }
+    
+    // Show loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Reel...';
+    submitBtn.disabled = true;
+    
+    // Add loading class to form
+    this.classList.add('loading');
+});
+
+// Auto-resize textarea on mobile
+if (isMobile) {
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        textInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
+    }
+}
+
+// Prevent zoom on iOS when focusing inputs
+if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+            });
+            input.addEventListener('blur', function() {
+                viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes';
+            });
+        });
+    }
 }
 </script>
 {% endblock %} 
