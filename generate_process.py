@@ -178,18 +178,20 @@ def create_reel(folder):
     output_video_path = f"static/reels/{folder}.mp4"
     
     # Enhanced ffmpeg command optimized for low memory usage
-    # Using faster encoding and reduced complexity for 256MB servers
-    command = f'''ffmpeg -y \
--f concat -safe 0 -i user_uploads/{folder}/input.txt \
--stream_loop -1 -i user_uploads/{folder}/audio.mp3 \
--vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
--c:v libx264 -preset ultrafast -crf 28 \
--pix_fmt yuv420p -c:a aac -b:a 64k \
--threads 2 -t {video_duration} {output_video_path}'''
+    # Using cross-platform subprocess array (no shell=True) for better compatibility
+    command = [
+        'ffmpeg', '-y',
+        '-f', 'concat', '-safe', '0', '-i', f'user_uploads/{folder}/input.txt',
+        '-stream_loop', '-1', '-i', f'user_uploads/{folder}/audio.mp3',
+        '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+        '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '28',
+        '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '64k',
+        '-threads', '2', '-t', str(video_duration), output_video_path
+    ]
     
-    print(f"[DEBUG] Running ffmpeg command: {command}")
+    print(f"[DEBUG] Running ffmpeg command: {' '.join(command)}")
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        result = subprocess.run(command, capture_output=True, text=True)
         print(f"[FFMPEG STDOUT]:\n{result.stdout}")
         if result.stderr:
             print(f"[FFMPEG STDERR]:\n{result.stderr}")
