@@ -194,14 +194,35 @@
 /* Extra mobile responsiveness for 480px and below */
 @media (max-width: 480px) {
     .hero-title {
-        font-size: 1.5rem;
-        padding: 0 0.5rem;
-        white-space: normal; /* Allow wrapping on mobile */
-        overflow: visible;
-        border-right: none; /* Remove typing cursor on mobile */
-        width: auto;
-        animation: gradientShift 3s ease infinite; /* Only gradient animation on mobile */
+        font-size: 1.5rem !important;
+        padding: 0 0.5rem !important;
+        white-space: normal !important; /* Allow wrapping on mobile */
+        overflow: visible !important;
+        border-right: none !important; /* Remove typing cursor on mobile */
+        width: auto !important;
+        max-width: 100% !important;
+        animation: gradientShift 3s ease infinite !important; /* Only gradient animation on mobile */
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto !important;
+        line-height: 1.3 !important;
+        text-align: center !important;
+        /* Completely reset any width constraints */
+        min-width: auto !important;
+        /* Ensure text doesn't break the layout */
+        box-sizing: border-box !important;
     }
+    
+    /* Additional override for very small screens */
+    @media (max-width: 360px) {
+        .hero-title {
+            font-size: 1.25rem !important;
+            padding: 0 0.25rem !important;
+            line-height: 1.4 !important;
+            word-break: break-word !important;
+        }
+    }
+    
     .hero-subtitle {
         font-size: 1rem;
         padding: 0 0.5rem;
@@ -864,15 +885,36 @@ html {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: typing 4s steps(40, end) 1s both;
     position: relative;
     z-index: 1;
     text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
-    white-space: nowrap;
-    overflow: hidden;
-    border-right: 3px solid var(--text-primary);
-    width: 0;
-    max-width: 100%;
+    
+    /* Mobile-first approach - allow wrapping by default */
+    white-space: normal;
+    overflow: visible;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    text-align: center;
+    padding: 0 1rem;
+    line-height: 1.2;
+    
+    /* Animation - gradient by default for mobile */
+    animation: gradientShift 3s ease infinite;
+}
+
+/* Desktop-only typing animation styles */
+@media (min-width: 769px) {
+    .hero-title {
+        white-space: nowrap;
+        overflow: hidden;
+        border-right: 3px solid var(--text-primary);
+        width: 0;
+        max-width: 100%;
+        animation: typing 4s steps(40, end) 1s both;
+        text-align: left;
+        padding: 0;
+    }
 }
 
 /* Typing animation for hero title - writes once and stops */
@@ -1042,7 +1084,24 @@ html {
 /* Responsive Styles */
 @media (max-width: 768px) {
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 2.5rem !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        border-right: none !important;
+        width: auto !important;
+        max-width: 100% !important;
+        animation: gradientShift 3s ease infinite !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        padding: 0 1rem !important;
+        /* Disable typing animation completely on tablets */
+        animation-name: gradientShift !important;
+        animation-duration: 3s !important;
+        animation-timing-function: ease !important;
+        animation-iteration-count: infinite !important;
     }
     
     .hero-subtitle {
@@ -1357,3 +1416,53 @@ div[id*="admin"] *,
     color: #ffffff !important;
     background-color: transparent !important;
 } 
+
+/* CRITICAL MOBILE TEXT WRAPPING FIX - FINAL OVERRIDE */
+@media screen and (max-width: 768px) {
+    .hero-section .hero-title, 
+    .hero-title {
+        white-space: normal !important;
+        overflow: visible !important;
+        width: auto !important;
+        max-width: 100% !important;
+        border-right: none !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto !important;
+        word-break: break-word !important;
+        line-height: 1.3 !important;
+        text-align: center !important;
+        padding: 0 1rem !important;
+        font-size: 2.2rem !important;
+        animation: gradientShift 3s ease infinite !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .hero-section .hero-title, 
+    .hero-title {
+        font-size: 1.5rem !important;
+        padding: 0 0.5rem !important;
+        line-height: 1.4 !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        width: auto !important;
+        max-width: 100% !important;
+        border-right: none !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto !important;
+        word-break: break-word !important;
+        text-align: center !important;
+        animation: gradientShift 3s ease infinite !important;
+    }
+}
+
+@media screen and (max-width: 360px) {
+    .hero-section .hero-title, 
+    .hero-title {
+        font-size: 1.25rem !important;
+        padding: 0 0.25rem !important;
+        line-height: 1.5 !important;
+    }
+}
