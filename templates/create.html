@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Create Reel - AI Reel Generator{% endblock %}
+{% block title %} Create Reel - BotAiVids{% endblock %}
 
 {% block extra_css %} 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/create.css') }}">
@@ -183,7 +183,7 @@ body {
                     <textarea class="text-input" id="textInput" name="text" placeholder="Enter your text to be added as voice here..." rows="4"></textarea>
                     <div class="alert alert-info mt-2" style="background: rgba(13, 110, 253, 0.1); border: 1px solid rgba(13, 110, 253, 0.3); border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #0d6efd !important;">
                         <i class="fas fa-info-circle me-2" style="color: #0d6efd !important;"></i>
-                        <strong style="color: #0d6efd !important;">Note:</strong> <span style="color: #0d6efd !important;">Text-to-speech is currently limited due to API restrictions. Your video will be created with background audio or silent track.</span>
+                        <strong style="color: #0d6efd !important;">Text-to-Speech:</strong> <span style="color: #0d6efd !important;">Your text will be converted to speech and added as audio to your video.</span>
                     </div>
                     <div class="alert alert-success mt-2" style="background: rgba(25, 135, 84, 0.1); border: 1px solid rgba(25, 135, 84, 0.3); border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #198754 !important;">
                         <i class="fas fa-cloud-upload-alt me-2" style="color: #198754 !important;"></i>

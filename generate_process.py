@@ -118,9 +118,11 @@ def create_reel(folder):
     print(f"[DEBUG] input.txt contents:\n{''.join(lines)}")
     
     # Check that all referenced files exist and are valid images
-    import imghdr
+    import mimetypes
     missing_files = []
     invalid_images = []
+    valid_image_types = {'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'}
+    
     for line in lines:
         if line.startswith("file "):
             img_file = line.split("'")[1]
@@ -128,7 +130,9 @@ def create_reel(folder):
             if not os.path.exists(img_path):
                 missing_files.append(img_file)
             else:
-                if imghdr.what(img_path) is None:
+                # Use mimetypes instead of deprecated imghdr
+                mime_type, _ = mimetypes.guess_type(img_path)
+                if mime_type not in valid_image_types:
                     invalid_images.append(img_file)
     if missing_files:
         print(f"[ERROR] The following files referenced in input.txt are missing: {missing_files}")
