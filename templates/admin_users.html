@@ -14,22 +14,6 @@
     min-height: 80vh;
 }
 
-/* Light mode specific background */
-[data-theme="light"] .admin-container {
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #111827 !important;
-    backdrop-filter: blur(20px);
-    border: 1px solid #e5e7eb !important;
-}
-
-/* Dark mode specific background */
-[data-theme="dark"] .admin-container {
-    background: rgba(15, 23, 42, 0.8) !important;
-    color: #ffffff !important;
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
 /* Header Section */
 .admin-header {
     display: flex;
@@ -38,23 +22,13 @@
     margin-bottom: 3rem;
     padding: 2rem;
     background: transparent;
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    box-shadow: 0 15px 35px var(--shadow-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-[data-theme="light"] .admin-header {
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #111827 !important;
-    border: 1px solid #e5e7eb !important;
-}
 
-[data-theme="dark"] .admin-header {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
 
 .admin-title {
     color: var(--text-primary);
@@ -81,30 +55,26 @@
 /* Filter Section */
 .filters {
     background: transparent;
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
+    backdrop-filter: none;
+    border: none;
     border-radius: 20px;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 15px 35px var(--shadow-color);
+    box-shadow: none;
     transition: all 0.3s ease;
 }
 
 [data-theme="light"] .filters {
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #111827 !important;
-    border: 1px solid #e5e7eb !important;
+    background: transparent;
 }
 
 [data-theme="dark"] .filters {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: transparent;
 }
 
 .filters:hover {
     transform: translateY(-2px);
-    box-shadow: 0 20px 40px var(--shadow-color);
+    box-shadow: none;
 }
 
 .filter-title {
@@ -145,7 +115,7 @@
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     background: transparent;
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     color: var(--text-primary);
     font-size: 0.95rem;
     transition: all 0.3s ease;
@@ -153,29 +123,29 @@
 
 [data-theme="light"] .filter-group input,
 [data-theme="light"] .filter-group select {
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
 }
 
 [data-theme="dark"] .filter-group input,
 [data-theme="dark"] .filter-group select {
-    background: rgba(255, 255, 255, 0.05);
+    background: transparent;
 }
 
 .filter-group input:focus,
 .filter-group select:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: none;
 }
 
 [data-theme="light"] .filter-group input:focus,
 [data-theme="light"] .filter-group select:focus {
-    background: rgba(255, 255, 255, 0.15);
+    background: transparent;
 }
 
 [data-theme="dark"] .filter-group input:focus,
 [data-theme="dark"] .filter-group select:focus {
-    background: rgba(255, 255, 255, 0.08);
+    background: transparent;
 }.filter-group input::placeholder {
     color: var(--text-secondary);
     opacity: 0.7;
@@ -216,15 +186,15 @@
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
 }
 
 [data-theme="light"] .btn-clear {
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
 }
 
 [data-theme="dark"] .btn-clear {
-    background: rgba(255, 255, 255, 0.05);
+    background: transparent;
 }
 
 .btn-clear:hover {
@@ -244,27 +214,23 @@
 
 .stat-card {
     background: transparent;
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     padding: 1.5rem;
     text-align: center;
-    box-shadow: 0 10px 25px var(--shadow-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 }
 
 [data-theme="light"] .stat-card {
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #111827 !important;
-    border: 1px solid #e5e7eb !important;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="dark"] .stat-card {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .stat-card::before {
@@ -314,20 +280,49 @@
 
 /* Users Table */
 .users-table-container {
-    background: transparent;
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    box-shadow: 0 15px 35px var(--shadow-color);
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 16px !important;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
     overflow: hidden;
+    transition: all 0.3s ease !important;
 }
 
 [data-theme="light"] .users-table-container {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
 [data-theme="dark"] .users-table-container {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Hover effects to match gallery cards */
+.users-table-container:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+[data-theme="dark"] .users-table-container:hover {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
 .table-header {
@@ -448,6 +443,15 @@
 .badge-user {
     background: linear-gradient(45deg, #10b981, #059669);
     color: white;
+}
+
+.badge-super-admin {
+    background: linear-gradient(45deg, #ffd700, #ffed4e) !important;
+    color: #1a1a1a !important;
+    border: 2px solid #b8860b !important;
+    font-weight: 600 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3) !important;
 }
 
 /* Action Buttons */
@@ -892,9 +896,13 @@
                         </div>
                     </td>
                     <td>
-                        {% if user.is_admin %}
+                        {% if user.is_super_admin %}
+                            <span class="status-badge badge-super-admin">
+                                <i class="fas fa-crown"></i> Super Admin
+                            </span>
+                        {% elif user.is_admin %}
                             <span class="status-badge badge-admin">
-                                <i class="fas fa-crown"></i> Admin
+                                <i class="fas fa-user-shield"></i> Admin
                             </span>
                         {% else %}
                             <span class="status-badge badge-user">
@@ -919,28 +927,39 @@
                             </a>
                             
                             {% if user.id != current_user.id %}
-                                <form method="POST" action="/manage/user/{{ user.id }}/toggle_admin" 
-                                      style="display: inline;" 
-                                      onsubmit="return confirm('Are you sure you want to {% if user.is_admin %}remove admin{% else %}grant admin{% endif %} privileges for {{ user.username }}?')">
-                                    <button type="submit" class="btn-action btn-edit">
-                                        {% if user.is_admin %}
-                                            <i class="fas fa-user-minus"></i>
-                                            Remove Admin
-                                        {% else %}
-                                            <i class="fas fa-user-plus"></i>
-                                            Make Admin
-                                        {% endif %}
-                                    </button>
-                                </form>
-                                
-                                <form method="POST" action="/manage/user/{{ user.id }}/delete" 
-                                      style="display: inline;" 
-                                      onsubmit="return confirm('Are you sure you want to delete {{ user.username }}? This action cannot be undone.')">
-                                    <button type="submit" class="btn-action btn-delete">
-                                        <i class="fas fa-trash"></i>
-                                        Delete
-                                    </button>
-                                </form>
+                                {% if user.is_super_admin %}
+                                    <span class="btn-action btn-disabled">
+                                        <i class="fas fa-shield-alt"></i>
+                                        Protected
+                                    </span>
+                                    <span class="btn-action btn-disabled">
+                                        <i class="fas fa-shield-alt"></i>
+                                        Protected
+                                    </span>
+                                {% else %}
+                                    <form method="POST" action="/manage/user/{{ user.id }}/toggle_admin" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Are you sure you want to {% if user.is_admin %}remove admin{% else %}grant admin{% endif %} privileges for {{ user.username }}?')">
+                                        <button type="submit" class="btn-action btn-edit">
+                                            {% if user.is_admin %}
+                                                <i class="fas fa-user-minus"></i>
+                                                Remove Admin
+                                            {% else %}
+                                                <i class="fas fa-user-plus"></i>
+                                                Make Admin
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                    
+                                    <form method="POST" action="/manage/user/{{ user.id }}/delete" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Are you sure you want to delete {{ user.username }}? This action cannot be undone.')">
+                                        <button type="submit" class="btn-action btn-delete">
+                                            <i class="fas fa-trash"></i>
+                                            Delete
+                                        </button>
+                                    </form>
+                                {% endif %}
                             {% else %}
                                 <span class="btn-action btn-disabled">
                                     <i class="fas fa-lock"></i>
@@ -966,9 +985,13 @@
                         <h6 style="margin: 0; color: var(--text-primary); font-weight: 600;">{{ user.username }}</h6>
                         <small style="color: var(--text-secondary);">{{ user.email or 'No email provided' }}</small>
                     </div>
-                    {% if user.is_admin %}
+                    {% if user.is_super_admin %}
+                        <span class="status-badge badge-super-admin">
+                            <i class="fas fa-crown"></i> Super Admin
+                        </span>
+                    {% elif user.is_admin %}
                         <span class="status-badge badge-admin">
-                            <i class="fas fa-crown"></i> Admin
+                            <i class="fas fa-user-shield"></i> Admin
                         </span>
                     {% else %}
                         <span class="status-badge badge-user">
@@ -995,28 +1018,39 @@
                     </a>
                     
                     {% if user.id != current_user.id %}
-                        <form method="POST" action="/manage/user/{{ user.id }}/toggle_admin" 
-                              style="display: inline;" 
-                              onsubmit="return confirm('Are you sure you want to {% if user.is_admin %}remove admin{% else %}grant admin{% endif %} privileges for {{ user.username }}?')">
-                            <button type="submit" class="btn-action btn-edit">
-                                {% if user.is_admin %}
-                                    <i class="fas fa-user-minus"></i>
-                                    Remove Admin
-                                {% else %}
-                                    <i class="fas fa-user-plus"></i>
-                                    Make Admin
-                                {% endif %}
-                            </button>
-                        </form>
-                        
-                        <form method="POST" action="/manage/user/{{ user.id }}/delete" 
-                              style="display: inline;" 
-                              onsubmit="return confirm('Are you sure you want to delete {{ user.username }}? This action cannot be undone.')">
-                            <button type="submit" class="btn-action btn-delete">
-                                <i class="fas fa-trash"></i>
-                                Delete
-                            </button>
-                        </form>
+                        {% if user.is_super_admin %}
+                            <span class="btn-action btn-disabled">
+                                <i class="fas fa-shield-alt"></i>
+                                Protected User
+                            </span>
+                            <span class="btn-action btn-disabled">
+                                <i class="fas fa-shield-alt"></i>
+                                Cannot Delete
+                            </span>
+                        {% else %}
+                            <form method="POST" action="/manage/user/{{ user.id }}/toggle_admin" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('Are you sure you want to {% if user.is_admin %}remove admin{% else %}grant admin{% endif %} privileges for {{ user.username }}?')">
+                                <button type="submit" class="btn-action btn-edit">
+                                    {% if user.is_admin %}
+                                        <i class="fas fa-user-minus"></i>
+                                        Remove Admin
+                                    {% else %}
+                                        <i class="fas fa-user-plus"></i>
+                                        Make Admin
+                                    {% endif %}
+                                </button>
+                            </form>
+                            
+                            <form method="POST" action="/manage/user/{{ user.id }}/delete" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('Are you sure you want to delete {{ user.username }}? This action cannot be undone.')">
+                                <button type="submit" class="btn-action btn-delete">
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+                                </button>
+                            </form>
+                        {% endif %}
                     {% else %}
                         <span class="btn-action btn-disabled">
                             <i class="fas fa-lock"></i>

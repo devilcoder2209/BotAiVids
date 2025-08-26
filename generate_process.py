@@ -2,50 +2,13 @@
 import os
 import time
 import subprocess
-import sys
 import cloudinary
 import cloudinary.uploader
 from dotenv import load_dotenv
 from text_to_audio import text_to_speech_file
 
-# Safety check for Python version compatibility
-print(f"[GENERATE] Python version: {sys.version_info}")
-
 # Load environment variables
 load_dotenv()
-
-def cleanup_local_files(folder, output_video_path):
-    """
-    Clean up local files after successful Cloudinary upload.
-    Important for Render's ephemeral storage to avoid disk space issues.
-    """
-    try:
-        # Remove the output video file
-        if os.path.exists(output_video_path):
-            os.remove(output_video_path)
-            print(f"[CLEANUP] Removed local video file: {output_video_path}")
-        
-        # Remove uploaded images and audio (keeping description.txt and input.txt for debugging)
-        user_folder = f"user_uploads/{folder}"
-        if os.path.exists(user_folder):
-            for file in os.listdir(user_folder):
-                file_path = os.path.join(user_folder, file)
-                # Keep text files for potential debugging, remove media files
-                if file.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.mp3', '.wav')):
-                    try:
-                        os.remove(file_path)
-                        print(f"[CLEANUP] Removed: {file_path}")
-                    except Exception as e:
-                        print(f"[CLEANUP WARNING] Could not remove {file_path}: {e}")
-            
-            # If folder is empty (except text files), it will be cleaned up by OS eventually
-            remaining_files = [f for f in os.listdir(user_folder) 
-                             if not f.lower().endswith(('.txt',))]
-            if not remaining_files:
-                print(f"[CLEANUP] Folder {user_folder} cleaned of media files")
-                
-    except Exception as e:
-        print(f"[CLEANUP ERROR] Failed to cleanup files: {e}")
 
 # Configure Cloudinary
 cloudinary_url = os.getenv('CLOUDINARY_URL')
@@ -93,25 +56,11 @@ def text_to_speech(folder: str):
     desc_path = f"user_uploads/{folder}/description.txt"
     if not os.path.exists(desc_path):
         print(f"[ERROR] description.txt not found for {folder}")
-        return False
-    
-    with open(desc_path, "r", encoding='utf-8') as f:
-        text = f.read().strip()
-    
-    if not text:
-        print(f"[WARNING] Empty text for {folder}, creating fallback audio")
-        text = "Generated video content"
-    
-    print(f"[DEBUG] Text content: {text[:100]}..." if len(text) > 100 else f"[DEBUG] Text content: {text}")
-    
-    # Call text_to_speech_file and check if it succeeds
-    audio_path = text_to_speech_file(text, folder)
-    if audio_path and os.path.exists(audio_path):
-        print(f"[SUCCESS] Audio created at: {audio_path}")
-        return True
-    else:
-        print(f"[ERROR] Failed to create audio for {folder}")
-        return False
+        return
+    with open(desc_path, "r") as f:
+        text = f.read()
+    print(text, folder)
+    text_to_speech_file(text, folder)
 def create_reel(folder):
     """
     Creates a video reel from images and audio for a given folder.
@@ -136,11 +85,9 @@ def create_reel(folder):
     print(f"[DEBUG] input.txt contents:\n{''.join(lines)}")
     
     # Check that all referenced files exist and are valid images
-    import mimetypes
+    import imghdr
     missing_files = []
     invalid_images = []
-    valid_image_types = {'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'}
-    
     for line in lines:
         if line.startswith("file "):
             img_file = line.split("'")[1]
@@ -148,9 +95,7 @@ def create_reel(folder):
             if not os.path.exists(img_path):
                 missing_files.append(img_file)
             else:
-                # Use mimetypes instead of deprecated imghdr
-                mime_type, _ = mimetypes.guess_type(img_path)
-                if mime_type not in valid_image_types:
+                if imghdr.what(img_path) is None:
                     invalid_images.append(img_file)
     if missing_files:
         print(f"[ERROR] The following files referenced in input.txt are missing: {missing_files}")
@@ -161,44 +106,24 @@ def create_reel(folder):
     
     # Check audio.mp3 exists and is not empty
     audio_path = f"user_uploads/{folder}/audio.mp3"
-    if not os.path.exists(audio_path):
-        print(f"[ERROR] audio.mp3 is missing for {folder}")
+    if not os.path.exists(audio_path) or os.path.getsize(audio_path) == 0:
+        print(f"[ERROR] audio.mp3 is missing or empty for {folder}")
         return None
-    
-    audio_size = os.path.getsize(audio_path)
-    if audio_size == 0:
-        print(f"[ERROR] audio.mp3 is empty for {folder}")
-        return None
-    
-    print(f"[DEBUG] Audio file verified: {audio_path} ({audio_size} bytes)")
-    
-    # Calculate total video duration from input.txt
-    video_duration = 0
-    for line in lines:
-        if line.strip().startswith("duration "):
-            video_duration += float(line.strip().split()[1])
-    
-    print(f"[DEBUG] Total video duration: {video_duration} seconds")
     
     # Create output directory for reels if it doesn't exist
     os.makedirs("static/reels", exist_ok=True)
     output_video_path = f"static/reels/{folder}.mp4"
     
-    # Enhanced ffmpeg command optimized for low memory usage
-    # Using cross-platform subprocess array (no shell=True) for better compatibility
-    command = [
-        'ffmpeg', '-y',
-        '-f', 'concat', '-safe', '0', '-i', f'user_uploads/{folder}/input.txt',
-        '-stream_loop', '-1', '-i', f'user_uploads/{folder}/audio.mp3',
-        '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
-        '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '28',
-        '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '64k',
-        '-threads', '2', '-t', str(video_duration), output_video_path
-    ]
+    # Fix the ffmpeg command to use dynamic folder paths and ensure even dimensions
+    # The scale filter ensures both width and height are even numbers (required for H.264)
+    command = f'''ffmpeg -y -f concat -safe 0 -i user_uploads/{folder}/input.txt \
+-i user_uploads/{folder}/audio.mp3 \
+-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
+-c:v libx264 -pix_fmt yuv420p -c:a aac -shortest {output_video_path}'''
     
-    print(f"[DEBUG] Running ffmpeg command: {' '.join(command)}")
+    print(f"[DEBUG] Running ffmpeg command: {command}")
     try:
-        result = subprocess.run(command, capture_output=True, text=True)
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
         print(f"[FFMPEG STDOUT]:\n{result.stdout}")
         if result.stderr:
             print(f"[FFMPEG STDERR]:\n{result.stderr}")
@@ -216,31 +141,12 @@ def create_reel(folder):
             return None
         
         # Check if output file was actually created and has content
-        if not os.path.exists(output_video_path):
-            print(f"[ERROR] Output video file was not created: {output_video_path}")
-            update_video_status(folder, 'failed')
-            return None
-        
-        output_size = os.path.getsize(output_video_path)
-        if output_size == 0:
-            print(f"[ERROR] Output video file is empty: {output_video_path}")
+        if not os.path.exists(output_video_path) or os.path.getsize(output_video_path) == 0:
+            print(f"[ERROR] Output video file was not created or is empty: {output_video_path}")
             update_video_status(folder, 'failed')
             return None
             
-        print(f"[SUCCESS] Video created successfully: {output_video_path} ({output_size} bytes)")
-        
-        # Verify the video contains audio streams
-        try:
-            # Quick check to verify video has audio stream
-            probe_cmd = ['ffprobe', '-v', 'quiet', '-select_streams', 'a', '-show_entries', 'stream=codec_name', '-of', 'csv=p=0', output_video_path]
-            probe_result = subprocess.run(probe_cmd, capture_output=True, text=True)
-            if probe_result.returncode == 0 and probe_result.stdout.strip():
-                print(f"[DEBUG] Video has audio stream: {probe_result.stdout.strip()}")
-            else:
-                print(f"[WARNING] Video may not have audio stream - probe result: {probe_result.stderr}")
-        except Exception as probe_error:
-            print(f"[WARNING] Could not probe video for audio: {probe_error}")
-            
+        print(f"[SUCCESS] Video created successfully: {output_video_path} ({os.path.getsize(output_video_path)} bytes)")
         print(f"Creating reel for {folder}...")
         
         # Upload to Cloudinary
@@ -258,8 +164,10 @@ def create_reel(folder):
             # Update database with Cloudinary URL
             update_video_status(folder, 'completed', cloudinary_url)
             
-            # Clean up local files after successful upload (important for Render)
-            cleanup_local_files(folder, output_video_path)
+            # Clean up local file after upload
+            if os.path.exists(output_video_path):
+                os.remove(output_video_path)
+                print(f"[DEBUG] Local video file {output_video_path} removed")
                 
             return cloudinary_url
         except Exception as e:

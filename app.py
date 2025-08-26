@@ -45,9 +45,10 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now)  # Use local time instead of UTC
     is_admin = db.Column(db.Boolean, default=False)
+    is_super_admin = db.Column(db.Boolean, default=False)  # New field for super admin protection
     
     # Relationship with videos
-    videos = db.relationship('Video', back_populates='user', lazy=True)
+    videos = db.relationship('Video', backref='user', lazy=True)
 
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -62,9 +63,6 @@ class Video(db.Model):
     duration = db.Column(db.Float, nullable=True)
     size = db.Column(db.Integer, nullable=True)
     format = db.Column(db.String(10), nullable=True)
-    
-    # Relationship to User
-    user = db.relationship('User', back_populates='videos')
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -107,16 +105,17 @@ class SecureModelView(ModelView):
 
 class UserModelView(SecureModelView):
     # User-specific configurations
-    column_list = ['id', 'username', 'email', 'is_admin', 'created_at']
+    column_list = ['id', 'username', 'email', 'is_admin', 'is_super_admin', 'created_at']
     column_searchable_list = ['username', 'email']
-    column_filters = ['is_admin', 'created_at']
+    column_filters = ['is_admin', 'is_super_admin', 'created_at']
     column_labels = {
         'is_admin': 'Admin Status',
+        'is_super_admin': 'Super Admin',
         'created_at': 'Registered'
     }
     
     # Form configurations
-    form_columns = ['username', 'email', 'is_admin']
+    form_columns = ['username', 'email', 'is_admin', 'is_super_admin']
     form_widget_args = {
         'password': {
             'placeholder': 'Leave blank to keep current password'
@@ -125,12 +124,11 @@ class UserModelView(SecureModelView):
 
 class VideoModelView(SecureModelView):
     # Video-specific configurations
-    column_list = ['id', 'uuid', 'user.username', 'description', 'status', 'created_at', 'updated_at']
+    column_list = ['id', 'uuid', 'user_id', 'description', 'status', 'created_at', 'updated_at']
     column_searchable_list = ['uuid', 'description']
     column_filters = ['status', 'created_at', 'user_id']
     column_labels = {
         'uuid': 'Video ID',
-        'user.username': 'User',
         'user_id': 'User ID',
         'cloudinary_url': 'Video URL',
         'created_at': 'Created',
@@ -143,7 +141,7 @@ class VideoModelView(SecureModelView):
         'status': lambda v, c, m, p: f'<span class="badge badge-{"success" if m.status == "completed" else "warning" if m.status == "processing" else "danger"}">{m.status.title()}</span>'
     }
     
-    # Form configurations
+    # Form configurations - removed 'user' field since it doesn't exist
     form_columns = ['user_id', 'description', 'status', 'cloudinary_url']
 
 # Initialize admin with custom base template
@@ -180,11 +178,18 @@ def init_app():
                     username='admin',
                     password=hashed_password,
                     email='admin@botaivids.com',
-                    is_admin=True
+                    is_admin=True,
+                    is_super_admin=True  # Mark original admin as super admin
                 )
                 db.session.add(admin_user)
                 db.session.commit()
-                print("[INFO] Admin user created (username: admin, password: admin123)")
+                print("[INFO] Super Admin user created (username: admin, password: admin123)")
+            else:
+                # If admin exists but isn't marked as super admin, mark them
+                if not admin_user.is_super_admin:
+                    admin_user.is_super_admin = True
+                    db.session.commit()
+                    print("[INFO] Existing admin user marked as super admin")
             
             print("[INFO] Database initialization successful")
             return True

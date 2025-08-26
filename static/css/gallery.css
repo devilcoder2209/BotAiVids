@@ -1,6 +1,6 @@
 .gallery-container {
     padding: 3rem 0;
-    background: var(--bg-secondary);
+    background: transparent;
     min-height: 70vh;
 }
 
@@ -21,15 +21,13 @@
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 2.5rem;
     padding: 1rem;
+    align-items: start; /* Prevent stretching and movement */
 }
 
 .gallery-item {
     transition: all 0.3s ease;
     position: relative;
-}
-
-.gallery-item:hover {
-    transform: translateY(-10px) scale(1.02);
+    height: fit-content; /* Prevent unnecessary height expansion */
 }
 
 .reel-card {
@@ -62,18 +60,19 @@
 
 .reel-card:hover {
     box-shadow: 0 25px 50px var(--shadow-color);
-    transform: translateY(-5px);
+    /* Removed transform to prevent card from moving out of position */
 }
 
-/* Video styling for proper alignment in cards */
-.reel-video {
-    width: 100% !important;
-    height: auto !important;
-    max-height: 570px !important;
-    object-fit: cover !important;
-    display: block !important;
-    border-radius: 20px 20px 0 0 !important;
-    background: #000 !important;
+/* Disable hover effects when video is being interacted with */
+.reel-card:has(.reel-video:focus)::before,
+.reel-card:has(.reel-video:active)::before {
+    transform: scaleX(0) !important;
+}
+
+.reel-card:has(.reel-video:focus),
+.reel-card:has(.reel-video:active) {
+    transform: none !important;
+    box-shadow: 0 15px 35px var(--shadow-color) !important;
 }
 
 .reel-thumbnail {
@@ -95,6 +94,12 @@
 
 .reel-card:hover .reel-thumbnail img {
     transform: scale(1.1);
+}
+
+/* Disable image scaling when video is active */
+.reel-card:has(.reel-video:focus) .reel-thumbnail img,
+.reel-card:has(.reel-video:active) .reel-thumbnail img {
+    transform: scale(1) !important;
 }
 
 .play-overlay {
@@ -206,6 +211,14 @@
     .reel-info h3 {
         font-size: 1.1rem;
     }
+    
+    .reel-video {
+        height: 350px !important; /* Smaller height for mobile */
+    }
+    
+    .reel-card {
+        min-height: 450px !important; /* Adjusted for mobile */
+    }
 }
 
 @media (max-width: 480px) {
@@ -217,4 +230,147 @@
     .gallery-container {
         padding: 2rem 0;
     }
+    
+    .reel-video {
+        height: 300px !important; /* Even smaller for very small screens */
+    }
+    
+    .reel-card {
+        min-height: 400px !important; /* Adjusted for small screens */
+    }
 } 
+
+/* Glassmorphism Effects for Gallery Page */
+.gallery-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.gallery-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: -1;
+}
+
+/* Glass effect for video cards */
+.video-card {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    border-radius: 16px !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Fix video sizing to match the card */
+.reel-video {
+    width: 100% !important;
+    height: 400px !important; /* Fixed height for consistency */
+    max-width: 100% !important;
+    border-radius: 12px !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* Ensure reel-card has proper structure */
+.reel-card {
+    overflow: hidden !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    transition: all 0.3s ease !important;
+    height: auto !important;
+    min-height: 500px !important; /* Consistent minimum height */
+}
+
+.reel-card .reel-info {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    margin: 0 !important;
+    flex-grow: 1 !important; /* Fill remaining space */
+    min-height: 100px !important; /* Minimum height for info section */
+}
+
+/* Prevent hover effect when video is active/focused */
+.reel-card:hover:not(:has(.reel-video:focus)):not(:has(.reel-video:active)) {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    /* Removed transform to prevent card movement */
+}
+
+/* Alternative approach - disable hover on video interaction */
+.reel-card:has(.reel-video:focus),
+.reel-card:has(.reel-video:active) {
+    transform: none !important;
+    transition: none !important;
+}
+
+/* Fallback for browsers that don't support :has() */
+.reel-video:focus,
+.reel-video:active {
+    outline: 2px solid var(--primary-color) !important;
+    outline-offset: 2px !important;
+}
+
+.video-card:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    /* Removed transform to prevent card movement */
+}
+
+/* Dark mode adjustments for gallery */
+[data-theme="dark"] .video-card {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .reel-card .reel-info {
+    background: rgba(0, 0, 0, 0.1) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .video-card:hover {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Glass effect for filter controls */
+.filter-controls {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 1rem !important;
+    margin-bottom: 2rem !important;
+}
+
+[data-theme="dark"] .filter-controls {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
