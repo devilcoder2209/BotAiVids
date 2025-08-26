@@ -185,6 +185,66 @@ def debug_users():
     except Exception as e:
         return {"error": str(e)}
 
+@app.route("/debug-elevenlabs")
+def debug_elevenlabs():
+    """Test ElevenLabs API connectivity and authentication"""
+    import requests
+    
+    api_key = os.environ.get('ELEVENLABS_API_KEY')
+    
+    if not api_key:
+        return {
+            "error": "No API key found",
+            "api_key_present": False,
+            "api_key_length": 0
+        }
+    
+    # Test basic API connectivity
+    try:
+        headers = {
+            "xi-api-key": api_key,
+            "Accept": "application/json"
+        }
+        
+        # Get user info from ElevenLabs (lightweight test)
+        response = requests.get(
+            "https://api.elevenlabs.io/v1/user", 
+            headers=headers, 
+            timeout=10
+        )
+        
+        return {
+            "api_key_present": True,
+            "api_key_length": len(api_key),
+            "api_status_code": response.status_code,
+            "api_response_size": len(response.content),
+            "api_accessible": response.status_code == 200,
+            "response_headers": dict(response.headers),
+            "error": None if response.status_code == 200 else response.text[:200]
+        }
+        
+    except requests.exceptions.Timeout:
+        return {
+            "api_key_present": True,
+            "api_key_length": len(api_key),
+            "error": "API timeout - network connectivity issue",
+            "api_accessible": False
+        }
+    except requests.exceptions.ConnectionError:
+        return {
+            "api_key_present": True,
+            "api_key_length": len(api_key),
+            "error": "Connection error - cannot reach ElevenLabs API",
+            "api_accessible": False
+        }
+    except Exception as e:
+        return {
+            "api_key_present": True,
+            "api_key_length": len(api_key),
+            "error": f"Exception: {str(e)}",
+            "api_accessible": False
+        }
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
