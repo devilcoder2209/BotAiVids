@@ -316,7 +316,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙋‍♂️ Support
 
-For support, email or create an issue in the repository.
+For support, connect me over https://www.linkedin.com/in/saumyadeep-chakrabarty/
 
 ## 🚀 Future Enhancements
 
