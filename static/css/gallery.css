@@ -65,6 +65,17 @@
     transform: translateY(-5px);
 }
 
+/* Video styling for proper alignment in cards */
+.reel-video {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 570px !important;
+    object-fit: cover !important;
+    display: block !important;
+    border-radius: 20px 20px 0 0 !important;
+    background: #000 !important;
+}
+
 .reel-thumbnail {
     position: relative;
     width: 100%;

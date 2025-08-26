@@ -14,23 +14,146 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         {% block extra_css %}{% endblock %}
         <script>
+        // CRITICAL: Force navigation link visibility - Global function
+        function forceNavigationVisibility() {
+            const navLinks = document.querySelectorAll('.glass-nav .nav-link');
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            
+            navLinks.forEach(link => {
+                // Force proper text color based on theme
+                if (currentTheme === 'light') {
+                    link.style.setProperty('color', '#1e293b', 'important');
+                } else {
+                    link.style.setProperty('color', '#f8fafc', 'important');
+                }
+                
+                link.style.setProperty('font-weight', '600', 'important');
+                link.style.setProperty('text-shadow', 'none', 'important');
+                
+                // Special handling for admin/management links
+                if (link.href.includes('manage') || link.href.includes('admin') || link.href.includes('dashboard')) {
+                    if (currentTheme === 'light') {
+                        link.style.setProperty('background', 'linear-gradient(45deg, #f1f5f9, #ffffff)', 'important');
+                        link.style.setProperty('color', '#1e293b', 'important');
+                        link.style.setProperty('border', '2px solid #e2e8f0', 'important');
+                    } else {
+                        link.style.setProperty('background', 'linear-gradient(45deg, rgba(129, 140, 248, 0.1), rgba(129, 140, 248, 0.2))', 'important');
+                        link.style.setProperty('color', '#f8fafc', 'important');
+                        link.style.setProperty('border', '2px solid rgba(129, 140, 248, 0.3)', 'important');
+                    }
+                    
+                    link.style.setProperty('border-radius', '12px', 'important');
+                    link.style.setProperty('padding', '0.5rem 1rem', 'important');
+                    link.style.setProperty('font-weight', '700', 'important');
+                    link.style.setProperty('text-transform', 'none', 'important');
+                    link.style.setProperty('letter-spacing', '0.5px', 'important');
+                    link.style.setProperty('margin', '0 0.25rem', 'important');
+                }
+            });
+        }
+        
+        // Admin page text visibility fixes - Global function
+        function forceAdminTextVisibility() {
+            // Only run on admin pages
+            if (!window.location.pathname.includes('admin') && !window.location.pathname.includes('manage')) {
+                return;
+            }
+            
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            
+            // Mark body as admin page for CSS targeting
+            document.body.setAttribute('data-admin', 'true');
+            document.documentElement.setAttribute('data-admin', 'true');
+            
+            // Get admin-specific text elements only
+            const adminTextElements = document.querySelectorAll(`
+                .admin-container *, .admin-content *, .users-table *, .table *, 
+                main .container *, main .row *, main .col-* *,
+                main span, main p, main h1, main h2, main h3, main h4, main h5, main h6, 
+                main td, main th, main label, main a:not(.btn):not(.nav-link):not(.navbar-brand), 
+                main li, main ul, main ol, main dd, main dt, main small, main strong, main em, main b, main i
+            `);
+            
+            adminTextElements.forEach(el => {
+                // Skip if it's a navigation element or button
+                if (el.classList.contains('nav-link') || 
+                    el.classList.contains('btn') || 
+                    el.classList.contains('navbar-brand') ||
+                    el.tagName.toLowerCase() === 'button') {
+                    return;
+                }
+                
+                if (currentTheme === 'light') {
+                    el.style.setProperty('color', '#000000', 'important');
+                    el.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
+                } else {
+                    el.style.setProperty('color', '#ffffff', 'important');
+                    el.style.setProperty('-webkit-text-fill-color', '#ffffff', 'important');
+                }
+                
+                el.style.setProperty('text-shadow', 'none', 'important');
+                el.style.setProperty('opacity', '1', 'important');
+                el.style.setProperty('visibility', 'visible', 'important');
+                el.style.setProperty('background-color', 'transparent', 'important');
+            });
+        }
+        
         // Theme toggle logic
         document.addEventListener('DOMContentLoaded', function() {
             const themeToggle = document.getElementById('themeToggle');
             const html = document.documentElement;
+            
             // Load theme from localStorage
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme) {
                 html.setAttribute('data-theme', savedTheme);
                 themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
             }
+            
+            // Theme toggle event listener
             themeToggle.addEventListener('click', function() {
                 let current = html.getAttribute('data-theme') || 'dark';
                 let next = current === 'dark' ? 'light' : 'dark';
                 html.setAttribute('data-theme', next);
                 localStorage.setItem('theme', next);
                 themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                
+                // Re-run navigation visibility fix when theme changes
+                setTimeout(forceNavigationVisibility, 100);
+                setTimeout(forceAdminTextVisibility, 200);
             });
+            
+            // Run navigation visibility fix immediately
+            forceNavigationVisibility();
+            
+            // Re-run periodically to ensure navigation visibility
+            setInterval(forceNavigationVisibility, 2000);
+            
+            // Only run admin text fixes on admin pages
+            if (window.location.pathname.includes('admin') || window.location.pathname.includes('manage')) {
+                forceAdminTextVisibility();
+                
+                // Run admin text fixes frequently but only on admin pages
+                setInterval(forceAdminTextVisibility, 1000);
+                
+                // Observer for dynamic content on admin pages only
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                            setTimeout(forceAdminTextVisibility, 100);
+                        }
+                    });
+                });
+                
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            } else {
+                // Clear admin attributes on non-admin pages
+                document.body.removeAttribute('data-admin');
+                document.documentElement.removeAttribute('data-admin');
+            }
         });
         </script>
 </head>

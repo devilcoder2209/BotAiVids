@@ -77,7 +77,7 @@ class SecureModelView(ModelView):
     # Enhanced security and styling
     def is_accessible(self):
         from flask_login import current_user
-        return current_user.is_authenticated and current_user.username == 'admin'
+        return current_user.is_authenticated and current_user.is_admin
     
     def inaccessible_callback(self, name, **kwargs):
         from flask import redirect, url_for, flash
@@ -122,11 +122,12 @@ class UserModelView(SecureModelView):
 
 class VideoModelView(SecureModelView):
     # Video-specific configurations
-    column_list = ['id', 'uuid', 'user', 'description', 'status', 'created_at', 'updated_at']
+    column_list = ['id', 'uuid', 'user_id', 'description', 'status', 'created_at', 'updated_at']
     column_searchable_list = ['uuid', 'description']
-    column_filters = ['status', 'created_at', 'user']
+    column_filters = ['status', 'created_at', 'user_id']
     column_labels = {
         'uuid': 'Video ID',
+        'user_id': 'User ID',
         'cloudinary_url': 'Video URL',
         'created_at': 'Created',
         'updated_at': 'Updated'
@@ -138,15 +139,15 @@ class VideoModelView(SecureModelView):
         'status': lambda v, c, m, p: f'<span class="badge badge-{"success" if m.status == "completed" else "warning" if m.status == "processing" else "danger"}">{m.status.title()}</span>'
     }
     
-    # Form configurations
-    form_columns = ['user', 'description', 'status', 'cloudinary_url']
+    # Form configurations - removed 'user' field since it doesn't exist
+    form_columns = ['user_id', 'description', 'status', 'cloudinary_url']
 
 # Initialize admin with custom base template
 admin = Admin(
     app, 
-    name='AI Reel Admin Portal', 
-    template_mode='bootstrap4',
-    base_template='admin/index.html',
+    name='BotAiVids Admin', 
+    template_mode='bootstrap5',  # Changed to Bootstrap 5
+    base_template='admin/master.html',  # Use our custom master template
     index_view=None
 )
 

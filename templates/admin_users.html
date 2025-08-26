@@ -10,8 +10,24 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 2rem;
-    background: var(--bg-secondary);
+    background: transparent;
     min-height: 80vh;
+}
+
+/* Light mode specific background */
+[data-theme="light"] .admin-container {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #111827 !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid #e5e7eb !important;
+}
+
+/* Dark mode specific background */
+[data-theme="dark"] .admin-container {
+    background: rgba(15, 23, 42, 0.8) !important;
+    color: #ffffff !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Header Section */
@@ -21,11 +37,23 @@
     align-items: center;
     margin-bottom: 3rem;
     padding: 2rem;
-    background: var(--glass-bg);
+    background: transparent;
     backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     box-shadow: 0 15px 35px var(--shadow-color);
+}
+
+[data-theme="light"] .admin-header {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #111827 !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+[data-theme="dark"] .admin-header {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 .admin-title {
@@ -52,7 +80,7 @@
 
 /* Filter Section */
 .filters {
-    background: var(--glass-bg);
+    background: transparent;
     backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
@@ -60,6 +88,18 @@
     margin-bottom: 2rem;
     box-shadow: 0 15px 35px var(--shadow-color);
     transition: all 0.3s ease;
+}
+
+[data-theme="light"] .filters {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #111827 !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+[data-theme="dark"] .filters {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 .filters:hover {
@@ -98,17 +138,27 @@
     letter-spacing: 0.5px;
 }
 
-.filter-group input, 
+.filter-group input,
 .filter-group select {
     width: 100%;
     padding: 0.75rem 1rem;
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    background: var(--glass-bg);
+    background: transparent;
     backdrop-filter: blur(10px);
     color: var(--text-primary);
     font-size: 0.95rem;
     transition: all 0.3s ease;
+}
+
+[data-theme="light"] .filter-group input,
+[data-theme="light"] .filter-group select {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .filter-group input,
+[data-theme="dark"] .filter-group select {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .filter-group input:focus,
@@ -116,10 +166,17 @@
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    background: var(--glass-bg);
 }
 
-.filter-group input::placeholder {
+[data-theme="light"] .filter-group input:focus,
+[data-theme="light"] .filter-group select:focus {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .filter-group input:focus,
+[data-theme="dark"] .filter-group select:focus {
+    background: rgba(255, 255, 255, 0.08);
+}.filter-group input::placeholder {
     color: var(--text-secondary);
     opacity: 0.7;
 }
@@ -149,7 +206,7 @@
 }
 
 .btn-clear {
-    background: var(--glass-bg);
+    background: transparent;
     color: var(--text-secondary);
     border: 1px solid var(--glass-border);
     padding: 0.75rem 1.5rem;
@@ -160,6 +217,14 @@
     transition: all 0.3s ease;
     text-decoration: none;
     backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .btn-clear {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .btn-clear {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .btn-clear:hover {
@@ -178,7 +243,7 @@
 }
 
 .stat-card {
-    background: var(--glass-bg);
+    background: transparent;
     backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 16px;
@@ -188,6 +253,18 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+}
+
+[data-theme="light"] .stat-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #111827 !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+[data-theme="dark"] .stat-card {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 .stat-card::before {
@@ -237,12 +314,20 @@
 
 /* Users Table */
 .users-table-container {
-    background: var(--glass-bg);
+    background: transparent;
     backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     box-shadow: 0 15px 35px var(--shadow-color);
     overflow: hidden;
+}
+
+[data-theme="light"] .users-table-container {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .users-table-container {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .table-header {
@@ -270,13 +355,21 @@
 }
 
 .users-table th {
-    background: var(--glass-bg);
+    background: transparent;
     color: var(--text-secondary);
     font-weight: 600;
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border-bottom: 2px solid var(--glass-border);
+}
+
+[data-theme="light"] .users-table th {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .users-table th {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .users-table td {
@@ -289,8 +382,16 @@
 }
 
 .users-table tbody tr:hover {
-    background: var(--glass-bg);
+    background: transparent;
     transform: scale(1.01);
+}
+
+[data-theme="light"] .users-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .users-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .users-table tbody tr:last-child td {
@@ -403,6 +504,41 @@
     color: white;
 }
 
+.btn-disabled {
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    cursor: not-allowed !important;
+}
+
+[data-theme="light"] .btn-disabled {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .btn-disabled {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Flash Messages */
+.flash-message {
+    background: transparent;
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 10px 25px var(--shadow-color);
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+[data-theme="light"] .flash-message {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .flash-message {
+    background: rgba(255, 255, 255, 0.05);
+}
+
 /* No Results */
 .no-results {
     text-align: center;
@@ -506,13 +642,21 @@
     }
     
     .mobile-user-card {
-        background: var(--glass-bg);
+        background: transparent;
         backdrop-filter: blur(10px);
         border: 1px solid var(--glass-border);
         border-radius: 12px;
         padding: 1rem;
         margin-bottom: 1rem;
         box-shadow: 0 4px 15px var(--shadow-color);
+    }
+    
+    [data-theme="light"] .mobile-user-card {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-theme="dark"] .mobile-user-card {
+        background: rgba(255, 255, 255, 0.05);
     }
     
     .mobile-user-header {
@@ -798,7 +942,7 @@
                                     </button>
                                 </form>
                             {% else %}
-                                <span class="btn-action" style="background: var(--glass-bg); color: var(--text-secondary); cursor: not-allowed;">
+                                <span class="btn-action btn-disabled">
                                     <i class="fas fa-lock"></i>
                                     Current User
                                 </span>
@@ -874,7 +1018,7 @@
                             </button>
                         </form>
                     {% else %}
-                        <span class="btn-action" style="background: var(--glass-bg); color: var(--text-secondary); cursor: not-allowed;">
+                        <span class="btn-action btn-disabled">
                             <i class="fas fa-lock"></i>
                             Current User
                         </span>
@@ -910,17 +1054,7 @@
     {% if messages %}
         <div class="flash-messages" style="position: fixed; top: 100px; right: 20px; z-index: 1000;">
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }} flash-message" style="
-                    background: var(--glass-bg); 
-                    backdrop-filter: blur(20px);
-                    border: 1px solid var(--glass-border);
-                    border-radius: 12px;
-                    padding: 1rem 1.5rem;
-                    margin-bottom: 0.5rem;
-                    box-shadow: 0 10px 25px var(--shadow-color);
-                    color: var(--text-primary);
-                    font-weight: 500;
-                ">
+                <div class="alert alert-{{ category }} flash-message">
                     <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
                     {{ message }}
                 </div>

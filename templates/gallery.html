@@ -5,6 +5,105 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
 <style>
+/* Bokeh effects for gallery page */
+.bokeh {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+    filter: blur(60px);
+    opacity: 0.3;
+    animation: float 20s infinite ease-in-out;
+}
+
+/* Prevent extra bottom space */
+html, body {
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+}
+
+.glass-footer {
+    margin-top: auto;
+    margin-bottom: 0 !important;
+    padding-bottom: 2rem !important;
+}
+
+.bokeh1 {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 15s;
+}
+
+.bokeh2 {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(45deg, #45b7d1, #96ceb4);
+    top: 60%;
+    right: 15%;
+    animation-delay: -5s;
+    animation-duration: 18s;
+}
+
+.bokeh3 {
+    width: 180px;
+    height: 180px;
+    background: linear-gradient(45deg, #feca57, #ff9ff3);
+    bottom: 20%;
+    left: 20%;
+    animation-delay: -10s;
+    animation-duration: 12s;
+}
+
+.bokeh4 {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(45deg, #a8e6cf, #dcedc1);
+    top: 30%;
+    right: 25%;
+    animation-delay: -15s;
+    animation-duration: 14s;
+}
+
+.bokeh5 {
+    width: 160px;
+    height: 160px;
+    background: linear-gradient(45deg, #ffd93d, #6bcf7f);
+    bottom: 40%;
+    right: 35%;
+    animation-delay: -20s;
+    animation-duration: 16s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) translateX(0) scale(1);
+    }
+    25% {
+        transform: translateY(-20px) translateX(10px) scale(1.1);
+    }
+    50% {
+        transform: translateY(-10px) translateX(-15px) scale(0.9);
+    }
+    75% {
+        transform: translateY(-30px) translateX(5px) scale(1.05);
+    }
+}
+
 /* Gallery Filter Styling */
 .gallery-filters {
     background: var(--glass-bg);
@@ -234,6 +333,13 @@
 
 {% block content %}
 <div class="container gallery-container">
+    <!-- Bokeh circles for glass effect -->
+    <div class="bokeh bokeh1"></div>
+    <div class="bokeh bokeh2"></div>
+    <div class="bokeh bokeh3"></div>
+    <div class="bokeh bokeh4"></div>
+    <div class="bokeh bokeh5"></div>
+    
     <div class="gallery-header">
         <h1 class="gallery-title">Reel Gallery</h1>
         <div class="results-info">

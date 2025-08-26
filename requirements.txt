@@ -8,6 +8,5 @@ requests
 python-dotenv
 cloudinary
 Pillow
-ffmpeg-python
 
 
