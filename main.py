@@ -245,6 +245,64 @@ def debug_elevenlabs():
             "api_accessible": False
         }
 
+@app.route("/debug-tts")
+def debug_tts():
+    """Test the actual text-to-speech generation process"""
+    import tempfile
+    import shutil
+    from text_to_audio import text_to_speech_file
+    
+    # Create a temporary test folder
+    test_id = "debug-test-" + str(uuid.uuid4())[:8]
+    test_folder = os.path.join("user_uploads", test_id)
+    
+    try:
+        # Create test folder
+        os.makedirs(test_folder, exist_ok=True)
+        
+        # Test text-to-speech generation
+        test_text = "Hello, this is a debug test for audio generation."
+        
+        result = text_to_speech_file(test_text, test_id)
+        
+        response_data = {
+            "test_id": test_id,
+            "test_text": test_text,
+            "result_path": result,
+            "generation_successful": bool(result),
+            "folder_exists": os.path.exists(test_folder)
+        }
+        
+        # Check if audio file was created
+        if result:
+            audio_path = os.path.join(test_folder, "audio.mp3")
+            response_data.update({
+                "audio_file_exists": os.path.exists(audio_path),
+                "audio_file_size": os.path.getsize(audio_path) if os.path.exists(audio_path) else 0,
+                "audio_file_path": audio_path
+            })
+        
+        # List files in test folder
+        if os.path.exists(test_folder):
+            response_data["folder_contents"] = os.listdir(test_folder)
+        
+        return response_data
+        
+    except Exception as e:
+        return {
+            "test_id": test_id,
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "generation_successful": False
+        }
+    finally:
+        # Cleanup test folder
+        try:
+            if os.path.exists(test_folder):
+                shutil.rmtree(test_folder)
+        except:
+            pass
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
