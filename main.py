@@ -6,12 +6,69 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_
 
+# Try to import PIL for image optimization, fallback if not available
+try:
+    from PIL import Image
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
+    print("[WARNING] PIL not available - image optimization disabled")
+
 from app import app, db, login_manager, User, Video
 from generate_process import text_to_speech, create_reel
 
 UPLOAD_FOLDER = 'user_uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def optimize_image_size(image_path, max_size_mb=10, max_dimension=1920):
+    """
+    Optimize image size to prevent server memory issues.
+    Reduces file size and dimensions while maintaining quality.
+    """
+    if not PIL_AVAILABLE:
+        print(f"[WARNING] PIL not available, skipping optimization for {image_path}")
+        return image_path
+        
+    try:
+        file_size_mb = os.path.getsize(image_path) / (1024 * 1024)
+        
+        if file_size_mb <= max_size_mb:
+            return image_path  # No optimization needed
+        
+        print(f"[OPTIMIZE] Image {image_path} is {file_size_mb:.1f}MB, optimizing...")
+        
+        with Image.open(image_path) as img:
+            # Convert to RGB if needed
+            if img.mode in ('RGBA', 'P'):
+                img = img.convert('RGB')
+            
+            # Resize if too large
+            width, height = img.size
+            if max(width, height) > max_dimension:
+                ratio = max_dimension / max(width, height)
+                new_size = (int(width * ratio), int(height * ratio))
+                img = img.resize(new_size, Image.Resampling.LANCZOS)
+                print(f"[OPTIMIZE] Resized from {width}x{height} to {new_size[0]}x{new_size[1]}")
+            
+            # Save with optimized quality
+            optimized_path = image_path.replace('.', '_optimized.')
+            img.save(optimized_path, 'JPEG', quality=80, optimize=True)
+            
+            # Replace original if optimization successful
+            new_size_mb = os.path.getsize(optimized_path) / (1024 * 1024)
+            if new_size_mb < file_size_mb:
+                os.remove(image_path)
+                os.rename(optimized_path, image_path)
+                print(f"[OPTIMIZE] Reduced from {file_size_mb:.1f}MB to {new_size_mb:.1f}MB")
+            else:
+                os.remove(optimized_path)
+            
+            return image_path
+            
+    except Exception as e:
+        print(f"[ERROR] Image optimization failed: {e}")
+        return image_path
 
 
 
@@ -147,9 +204,16 @@ def create():
             for file in files:
                 if file and file.filename:
                     filename = secure_filename(file.filename)
-                    file.save(os.path.join(upload_path, filename))
+                    file_path = os.path.join(upload_path, filename)
+                    file.save(file_path)
+                    
+                    # Optimize image size to prevent server memory issues
+                    optimized_path = optimize_image_size(file_path)
+                    if optimized_path != file_path:
+                        filename = os.path.basename(optimized_path)
+                    
                     input_files.append(filename)
-            
+                
             # Save description
             with open(os.path.join(upload_path, "description.txt"), "w", encoding='utf-8') as desc_file:
                 desc_file.write(desc)
@@ -172,7 +236,10 @@ def create():
             # Call processing functions
             try:
                 print(f"[DEBUG] Starting processing for {rec_id}")
-                text_to_speech(rec_id)
+                audio_success = text_to_speech(rec_id)
+                if not audio_success:
+                    print(f"[WARNING] Audio generation failed for {rec_id}, but continuing with video creation")
+                
                 video_url = create_reel(rec_id)
                 
                 # Update video with completion status

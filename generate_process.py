@@ -89,11 +89,25 @@ def text_to_speech(folder: str):
     desc_path = f"user_uploads/{folder}/description.txt"
     if not os.path.exists(desc_path):
         print(f"[ERROR] description.txt not found for {folder}")
-        return
-    with open(desc_path, "r") as f:
-        text = f.read()
-    print(text, folder)
-    text_to_speech_file(text, folder)
+        return False
+    
+    with open(desc_path, "r", encoding='utf-8') as f:
+        text = f.read().strip()
+    
+    if not text:
+        print(f"[WARNING] Empty text for {folder}, creating fallback audio")
+        text = "Generated video content"
+    
+    print(f"[DEBUG] Text content: {text[:100]}..." if len(text) > 100 else f"[DEBUG] Text content: {text}")
+    
+    # Call text_to_speech_file and check if it succeeds
+    audio_path = text_to_speech_file(text, folder)
+    if audio_path and os.path.exists(audio_path):
+        print(f"[SUCCESS] Audio created at: {audio_path}")
+        return True
+    else:
+        print(f"[ERROR] Failed to create audio for {folder}")
+        return False
 def create_reel(folder):
     """
     Creates a video reel from images and audio for a given folder.
