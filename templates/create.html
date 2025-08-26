@@ -375,7 +375,7 @@ body {
                             </label>
                             <input name="files" id="files" type="file" class="form-control" multiple accept="image/*" required>
                             <input name="uuid" type="hidden" value="{{ myid }}" />
-                            <small class="form-text text-muted mt-1">You can select multiple images (JPG, PNG)</small>
+                            <small class="form-text text-muted mt-1">You can select multiple images (JPG, PNG formats)</small>
                         </div>
                         
                         <div id="preview" class="mb-3"></div>
@@ -392,7 +392,7 @@ body {
                                 <option value="5">🐌 5 seconds (Slow pace)</option>
                                 <option value="6">🔄 6 seconds (Very slow)</option>
                             </select>
-                            <small class="form-text text-muted mt-1">Choose how long each image should be displayed</small>
+                            <small class="form-text text-muted mt-1">Choose how long each image should be displayed in your video</small>
                         </div>
                         
                         <div class="text-input-container">
@@ -405,13 +405,15 @@ body {
                                 <div class="col-12 col-md-6 mb-2">
                                     <div class="alert alert-info mb-0">
                                         <i class="fas fa-robot me-2"></i>
-                                        <strong>AI Voice:</strong> Your text will be converted to natural speech
+                                        <strong>AI Voice:</strong>
+                                        <span>Your text will be converted to natural speech automatically</span>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 mb-2">
                                     <div class="alert alert-success mb-0">
                                         <i class="fas fa-cloud me-2"></i>
-                                        <strong>Cloud Storage:</strong> Videos saved permanently to cloud
+                                        <strong>Cloud Storage:</strong>
+                                        <span>Videos are saved permanently to cloud storage</span>
                                     </div>
                                 </div>
                             </div>

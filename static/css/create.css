@@ -1,3 +1,33 @@
+/* Global mobile text wrapping improvements */
+@media (max-width: 768px) {
+    * {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        box-sizing: border-box;
+    }
+    
+    p, span, div, label, button, a {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        line-height: 1.4;
+    }
+    
+    .form-text, .text-muted {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        line-height: 1.3;
+        white-space: normal;
+    }
+    
+    .container-fluid, .row, .col-12 {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+}
+
 /* Enhanced mobile responsiveness for 768px and below */
 @media (max-width: 768px) {
     .upload-container {
@@ -5,18 +35,28 @@
         padding: 1.5rem 1rem;
         border-radius: 16px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
     }
     
     .upload-title {
         font-size: 1.75rem;
         margin-bottom: 1rem;
         line-height: 1.3;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
     }
     
     .upload-instructions {
         font-size: 1rem;
         margin-bottom: 1.5rem;
         padding: 0 0.5rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        line-height: 1.5;
     }
     
     .form-label {
@@ -75,6 +115,20 @@
         padding: 0.75rem;
         border-radius: 10px;
         margin-top: 1rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        line-height: 1.4;
+    }
+    
+    .alert strong {
+        display: inline-block;
+        margin-right: 0.25rem;
+    }
+    
+    .alert span {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     
     #preview {
@@ -138,17 +192,28 @@
         padding: 1rem 0.75rem;
         border-radius: 12px;
         box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
     }
     
     .upload-title {
         font-size: 1.5rem;
         margin-bottom: 0.75rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        line-height: 1.2;
     }
     
     .upload-instructions {
         font-size: 0.9rem;
         margin-bottom: 1rem;
         padding: 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        line-height: 1.4;
     }
     
     .form-control, .text-input {
@@ -176,6 +241,25 @@
         font-size: 0.85rem;
         padding: 0.625rem;
         margin-top: 0.75rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        line-height: 1.3;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .alert strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        word-wrap: break-word;
+    }
+    
+    .alert span {
+        display: block;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
     }
     
     .preview-thumb img {
