@@ -41,29 +41,49 @@ UPLOAD_FOLDER = 'user_uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-def optimize_image_size(image_path, max_size_mb=10, max_dimension=1920):
+def optimize_image_size(image_path, max_size_mb=5, max_dimension=1280):
     """
     Optimize image size to prevent server memory issues.
     Reduces file size and dimensions while maintaining quality.
+    Aggressive optimization for 256MB server limits.
     """
     if not PIL_AVAILABLE:
         print(f"[WARNING] PIL not available, skipping optimization for {image_path}")
         return image_path
         
     try:
+        import psutil
+        import gc
+        
+        # Monitor memory before processing
+        process = psutil.Process()
+        memory_before = process.memory_info().rss / 1024 / 1024  # MB
+        print(f"[MEMORY] Before processing: {memory_before:.1f}MB")
+        
         file_size_mb = os.path.getsize(image_path) / (1024 * 1024)
+        print(f"[OPTIMIZE] Processing image: {image_path} ({file_size_mb:.2f}MB)")
         
-        if file_size_mb <= max_size_mb:
-            return image_path  # No optimization needed
-        
-        print(f"[OPTIMIZE] Image {image_path} is {file_size_mb:.1f}MB, optimizing...")
-        
+        # Always optimize for server memory constraints
         with Image.open(image_path) as img:
-            # Convert to RGB if needed
-            if img.mode in ('RGBA', 'P'):
-                img = img.convert('RGB')
+            # Get original info
+            original_size = img.size
+            original_mode = img.mode
+            print(f"[OPTIMIZE] Original: {original_size[0]}x{original_size[1]} {original_mode}")
             
-            # Resize if too large
+            # Convert to RGB (reduces memory and file size)
+            if img.mode in ('RGBA', 'P', 'LA'):
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                if 'transparency' in img.info:
+                    # Handle transparency
+                    background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                else:
+                    background.paste(img)
+                img = background
+                print(f"[OPTIMIZE] Converted {original_mode} to RGB")
+            
+            # Aggressive resizing for memory constraints
             width, height = img.size
             if max(width, height) > max_dimension:
                 ratio = max_dimension / max(width, height)
@@ -71,23 +91,48 @@ def optimize_image_size(image_path, max_size_mb=10, max_dimension=1920):
                 img = img.resize(new_size, Image.Resampling.LANCZOS)
                 print(f"[OPTIMIZE] Resized from {width}x{height} to {new_size[0]}x{new_size[1]}")
             
-            # Save with optimized quality
-            optimized_path = image_path.replace('.', '_optimized.')
-            img.save(optimized_path, 'JPEG', quality=80, optimize=True)
+            # Save with aggressive compression
+            quality = 70 if file_size_mb > 1 else 80
+            img.save(image_path, 'JPEG', quality=quality, optimize=True, progressive=True)
             
-            # Replace original if optimization successful
-            new_size_mb = os.path.getsize(optimized_path) / (1024 * 1024)
-            if new_size_mb < file_size_mb:
-                os.remove(image_path)
-                os.rename(optimized_path, image_path)
-                print(f"[OPTIMIZE] Reduced from {file_size_mb:.1f}MB to {new_size_mb:.1f}MB")
-            else:
-                os.remove(optimized_path)
+            # Force garbage collection
+            del img
+            gc.collect()
             
-            return image_path
-            
+        # Check memory after processing
+        memory_after = process.memory_info().rss / 1024 / 1024  # MB
+        new_size_mb = os.path.getsize(image_path) / (1024 * 1024)
+        print(f"[MEMORY] After processing: {memory_after:.1f}MB (diff: {memory_after - memory_before:+.1f}MB)")
+        print(f"[OPTIMIZE] Final size: {new_size_mb:.2f}MB (saved: {file_size_mb - new_size_mb:.2f}MB)")
+        
+        return image_path
+        
+    except ImportError:
+        print("[WARNING] psutil not available, basic optimization only")
+        # Fallback without memory monitoring
+        return basic_optimize_image(image_path, max_size_mb, max_dimension)
     except Exception as e:
         print(f"[ERROR] Image optimization failed: {e}")
+        return image_path
+
+def basic_optimize_image(image_path, max_size_mb=5, max_dimension=1280):
+    """Basic image optimization without memory monitoring"""
+    try:
+        with Image.open(image_path) as img:
+            if img.mode in ('RGBA', 'P'):
+                img = img.convert('RGB')
+            
+            width, height = img.size
+            if max(width, height) > max_dimension:
+                ratio = max_dimension / max(width, height)
+                new_size = (int(width * ratio), int(height * ratio))
+                img = img.resize(new_size, Image.Resampling.LANCZOS)
+            
+            img.save(image_path, 'JPEG', quality=70, optimize=True)
+        
+        return image_path
+    except Exception as e:
+        print(f"[ERROR] Basic image optimization failed: {e}")
         return image_path
 
 
@@ -239,7 +284,34 @@ def create():
                 if file and file.filename:
                     filename = secure_filename(file.filename)
                     file_path = os.path.join(upload_path, filename)
+                    
+                    # Save and immediately check file size
                     file.save(file_path)
+                    file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
+                    
+                    # Reject files that are too large even before processing
+                    if file_size_mb > 50:  # 50MB limit per file
+                        os.remove(file_path)
+                        flash(f"File {filename} is too large ({file_size_mb:.1f}MB). Maximum size is 50MB.", "error")
+                        return redirect(url_for("create"))
+                    
+                    print(f"[UPLOAD] File {filename}: {file_size_mb:.2f}MB")
+                    
+                    # Check memory before processing each image
+                    try:
+                        import psutil
+                        process = psutil.Process()
+                        memory_mb = process.memory_info().rss / 1024 / 1024
+                        print(f"[MEMORY] Before image {filename}: {memory_mb:.1f}MB")
+                        
+                        # If memory is getting high, force garbage collection
+                        if memory_mb > 200:  # 200MB threshold
+                            import gc
+                            gc.collect()
+                            print(f"[MEMORY] Forced garbage collection")
+                            
+                    except ImportError:
+                        pass
                     
                     # Optimize image size to prevent server memory issues
                     optimized_path = optimize_image_size(file_path)
@@ -270,6 +342,23 @@ def create():
             # Call processing functions
             try:
                 print(f"[DEBUG] Starting processing for {rec_id}")
+                
+                # Check memory before processing
+                try:
+                    import psutil
+                    process = psutil.Process()
+                    memory_mb = process.memory_info().rss / 1024 / 1024
+                    print(f"[MEMORY] Before processing: {memory_mb:.1f}MB")
+                    
+                    # If memory usage is already high, force cleanup
+                    if memory_mb > 180:  # Leave 70MB headroom
+                        import gc
+                        gc.collect()
+                        print(f"[MEMORY] High memory usage detected, forcing cleanup")
+                        
+                except ImportError:
+                    print("[WARNING] psutil not available for memory monitoring")
+                
                 audio_success = text_to_speech(rec_id)
                 if not audio_success:
                     print(f"[WARNING] Audio generation failed for {rec_id}, but continuing with video creation")
