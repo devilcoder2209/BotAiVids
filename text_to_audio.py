@@ -19,6 +19,7 @@ def create_fallback_audio(folder: str, duration: float = 3.0) -> str:
     """
     Create a fallback audio file when ElevenLabs API fails.
     This creates a pleasant ambient background tone.
+    Enhanced for cross-platform compatibility (Windows/Linux).
     """
     try:
         folder_path = os.path.join("user_uploads", folder)
@@ -26,31 +27,64 @@ def create_fallback_audio(folder: str, duration: float = 3.0) -> str:
         
         # Create a pleasant ambient background with multiple tones
         # Using a combination of frequencies to create a more pleasant sound
-        command = f'''ffmpeg -y \
--f lavfi -i "sine=frequency=220:duration={duration}" \
--f lavfi -i "sine=frequency=330:duration={duration}" \
--f lavfi -i "sine=frequency=440:duration={duration}" \
--filter_complex "[0:a][1:a][2:a]amix=inputs=3:duration=first:weights=0.3 0.2 0.1,volume=0.1" \
--ar 44100 -ac 1 -b:a 128k "{audio_path}"'''
+        # Updated for better Linux/Render compatibility
+        command = [
+            'ffmpeg', '-y',
+            '-f', 'lavfi', '-i', f'sine=frequency=220:duration={duration}',
+            '-f', 'lavfi', '-i', f'sine=frequency=330:duration={duration}',
+            '-f', 'lavfi', '-i', f'sine=frequency=440:duration={duration}',
+            '-filter_complex', '[0:a][1:a][2:a]amix=inputs=3:duration=first:weights=0.3 0.2 0.1,volume=0.1',
+            '-ar', '44100', '-ac', '1', '-b:a', '128k', audio_path
+        ]
         
         print(f"[FALLBACK] Creating ambient background audio with FFmpeg...")
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        print(f"[FALLBACK] Command: {' '.join(command)}")
+        result = subprocess.run(command, capture_output=True, text=True)
         
         if result.returncode == 0 and os.path.exists(audio_path):
             print(f"[SUCCESS] Fallback audio created: {audio_path}")
             return audio_path
         else:
             print(f"[ERROR] Failed to create fallback audio: {result.stderr}")
-            # Try simpler fallback
-            simple_command = f'ffmpeg -y -f lavfi -i "sine=frequency=440:duration={duration}" -ar 44100 -ac 1 -b:a 128k -af "volume=0.1" "{audio_path}"'
-            simple_result = subprocess.run(simple_command, shell=True, capture_output=True, text=True)
+            print(f"[ERROR] Command output: {result.stdout}")
+            
+            # Try simpler fallback with basic sine wave
+            simple_command = [
+                'ffmpeg', '-y',
+                '-f', 'lavfi', '-i', f'sine=frequency=440:duration={duration}',
+                '-ar', '44100', '-ac', '1', '-b:a', '128k',
+                '-af', 'volume=0.1', audio_path
+            ]
+            print(f"[FALLBACK] Trying simple command: {' '.join(simple_command)}")
+            simple_result = subprocess.run(simple_command, capture_output=True, text=True)
+            
             if simple_result.returncode == 0 and os.path.exists(audio_path):
                 print(f"[SUCCESS] Simple fallback audio created: {audio_path}")
                 return audio_path
-            return ""
+            else:
+                print(f"[ERROR] Simple fallback also failed: {simple_result.stderr}")
+                print(f"[ERROR] Simple command output: {simple_result.stdout}")
+                
+                # Last resort: create minimal silence
+                silence_command = [
+                    'ffmpeg', '-y',
+                    '-f', 'lavfi', '-i', f'anullsrc=channel_layout=mono:sample_rate=44100:duration={duration}',
+                    '-c:a', 'mp3', '-b:a', '128k', audio_path
+                ]
+                print(f"[FALLBACK] Trying silence: {' '.join(silence_command)}")
+                silence_result = subprocess.run(silence_command, capture_output=True, text=True)
+                
+                if silence_result.returncode == 0 and os.path.exists(audio_path):
+                    print(f"[SUCCESS] Silence audio created: {audio_path}")
+                    return audio_path
+                else:
+                    print(f"[ERROR] All fallback attempts failed")
+                    return ""
             
     except Exception as e:
         print(f"[ERROR] Exception creating fallback audio: {e}")
+        import traceback
+        traceback.print_exc()
         return ""
 
 

@@ -303,6 +303,56 @@ def debug_tts():
         except:
             pass
 
+@app.route("/debug-ffmpeg")
+def debug_ffmpeg():
+    """Test FFmpeg availability and basic functionality"""
+    import subprocess
+    
+    try:
+        # Test FFmpeg version
+        version_result = subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, timeout=10)
+        ffmpeg_available = version_result.returncode == 0
+        
+        response_data = {
+            "ffmpeg_available": ffmpeg_available,
+            "ffmpeg_version_output": version_result.stdout[:500] if ffmpeg_available else None,
+            "ffmpeg_error": version_result.stderr[:200] if not ffmpeg_available else None
+        }
+        
+        if ffmpeg_available:
+            # Test basic audio generation capability
+            test_output = "/tmp/test_audio.mp3" if os.name == "posix" else "test_audio.mp3"
+            test_command = [
+                'ffmpeg', '-y', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=1',
+                '-ar', '44100', '-ac', '1', '-b:a', '128k', test_output
+            ]
+            
+            test_result = subprocess.run(test_command, capture_output=True, text=True, timeout=10)
+            response_data.update({
+                "audio_generation_test": test_result.returncode == 0,
+                "test_command": ' '.join(test_command),
+                "test_output": test_result.stdout[:200],
+                "test_error": test_result.stderr[:200],
+                "test_file_created": os.path.exists(test_output),
+                "test_file_size": os.path.getsize(test_output) if os.path.exists(test_output) else 0
+            })
+            
+            # Cleanup test file
+            try:
+                if os.path.exists(test_output):
+                    os.remove(test_output)
+            except:
+                pass
+        
+        return response_data
+        
+    except subprocess.TimeoutExpired:
+        return {"ffmpeg_available": False, "error": "FFmpeg command timed out"}
+    except FileNotFoundError:
+        return {"ffmpeg_available": False, "error": "FFmpeg not found in PATH"}
+    except Exception as e:
+        return {"ffmpeg_available": False, "error": str(e), "error_type": type(e).__name__}
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
