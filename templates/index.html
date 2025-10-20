@@ -5,7 +5,7 @@
 {% block content %}
 <section class="hero-section">
     <div class="container">
-        <h1 class="hero-title">Create Viral Reels with AI Magic ✨</h1>
+        <h1 class="hero-title" id="typing-text"></h1>
         <p class="hero-subtitle">Transform your ideas into stunning short videos that captivate and convert</p>
                 {% if not current_user.is_authenticated %}
                     <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 40vh; margin-top: -6vh;">
@@ -86,4 +86,27 @@
         </div>
     </div>
 </section>
+
+<script>
+// Typing animation for hero title
+document.addEventListener('DOMContentLoaded', function() {
+    const typingText = document.getElementById('typing-text');
+    const textToType = 'Create Viral Reels with AI Magic ✨';
+    let charIndex = 0;
+    
+    function typeWriter() {
+        if (charIndex < textToType.length) {
+            typingText.textContent += textToType.charAt(charIndex);
+            charIndex++;
+            setTimeout(typeWriter, 100); // Typing speed: 100ms per character
+        } else {
+            // Add blinking cursor effect after typing completes
+            typingText.classList.add('typing-complete');
+        }
+    }
+    
+    // Start typing after a short delay
+    setTimeout(typeWriter, 500);
+});
+</script>
 {% endblock %}
