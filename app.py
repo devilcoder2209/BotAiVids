@@ -197,9 +197,13 @@ def init_app():
             print(f"[ERROR] Database initialization failed: {e}")
             return False
 
+# Initialize database on startup (works with both Flask dev server and Gunicorn)
+try:
+    init_app()
+except Exception as e:
+    print(f"[WARNING] Database initialization had an issue: {e}")
+    print("[INFO] App will continue running, database might need manual setup")
+
 if __name__ == '__main__':
-    if init_app():
-        print("[INFO] Starting Flask application on http://127.0.0.1:5000")
-        app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
-    else:
-        print("[ERROR] Failed to initialize application")
+    print("[INFO] Starting Flask application on http://127.0.0.1:5000")
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)

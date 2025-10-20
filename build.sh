@@ -38,11 +38,8 @@ echo "🐍 Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Initialize database
-echo "🗄️  Initializing database..."
-python init_db.py
-
 echo "🎉 Build process completed!"
+echo "ℹ️  Database will be initialized automatically when app starts"
 
 # Test FFmpeg availability
 echo "🧪 Testing FFmpeg..."
