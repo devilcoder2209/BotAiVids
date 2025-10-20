@@ -1,0 +1,133 @@
+name: Deploy to Production
+
+# This workflow automatically deploys your application to Render
+# when you push code to the main branch or manually trigger it.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    # Allows manual deployment from GitHub Actions tab
+
+env:
+  PYTHON_VERSION: '3.10'
+
+jobs:
+  # Step 1: Check code quality and run tests
+  quality-check:
+    name: Code Quality & Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8
+
+      - name: Check for Python syntax errors
+        run: |
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=venv,env
+        continue-on-error: false
+
+      - name: Verify critical files exist
+        run: |
+          echo "Checking required files..."
+          test -f app.py && echo "✓ app.py found"
+          test -f main.py && echo "✓ main.py found"
+          test -f requirements.txt && echo "✓ requirements.txt found"
+          test -f Procfile && echo "✓ Procfile found"
+          test -f build.sh && echo "✓ build.sh found"
+          echo "All required files present!"
+
+      - name: Test imports
+        run: |
+          python -c "import app; print('✓ app.py imports successfully')"
+          python -c "import main; print('✓ main.py imports successfully')"
+
+  # Step 2: Deploy to Render
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: quality-check
+    if: github.ref == 'refs/heads/main'
+    
+    environment:
+      name: production
+      url: https://botaivids-app1.onrender.com
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Trigger Render deployment
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "ERROR: RENDER_DEPLOY_HOOK secret is not configured"
+            echo "Please add your Render deploy hook URL to GitHub secrets"
+            exit 1
+          fi
+          
+          echo "Triggering deployment to Render..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$RENDER_DEPLOY_HOOK")
+          
+          if [ "$RESPONSE" -eq 200 ] || [ "$RESPONSE" -eq 201 ]; then
+            echo "✓ Deployment triggered successfully (HTTP $RESPONSE)"
+          else
+            echo "✗ Deployment trigger failed (HTTP $RESPONSE)"
+            exit 1
+          fi
+
+      - name: Wait for deployment to start
+        run: |
+          echo "Waiting 30 seconds for Render to begin deployment..."
+          sleep 30
+
+      - name: Check application health
+        run: |
+          echo "Checking if application is responding..."
+          MAX_ATTEMPTS=10
+          ATTEMPT=1
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "Health check attempt $ATTEMPT of $MAX_ATTEMPTS..."
+            
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://botaivids-app1.onrender.com/)
+            
+            if [ "$HTTP_CODE" -eq 200 ]; then
+              echo "✓ Application is healthy and responding (HTTP $HTTP_CODE)"
+              echo "✓ Deployment successful!"
+              exit 0
+            fi
+            
+            echo "Application returned HTTP $HTTP_CODE, waiting 15 seconds..."
+            sleep 15
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+          
+          echo "⚠ Health check timed out, but deployment may still be in progress"
+          echo "Check Render dashboard: https://dashboard.render.com/"
+
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "========================================="
+          echo "  Deployment Successful!"
+          echo "========================================="
+          echo ""
+          echo "Application URL: https://botaivids-app1.onrender.com"
+          echo "Render Dashboard: https://dashboard.render.com/"
+          echo ""
+          echo "The application should be live within 2-3 minutes."

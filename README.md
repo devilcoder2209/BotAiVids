@@ -3,8 +3,19 @@
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.0.0-green.svg)](https://flask.palletsprojects.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Deployment Status](https://github.com/devilcoder2209/BotAiVids/actions/workflows/deploy.yml/badge.svg)](https://github.com/devilcoder2209/BotAiVids/actions/workflows/deploy.yml)
 
 A professional-grade Flask web application that transforms images and text into engaging short videos with AI-powered narration. Perfect for content creators, marketers, and educators looking to automate video production.
+
+## 🚀 Automated Deployment
+
+This application uses **GitHub Actions** for continuous deployment. Every push to the `main` branch automatically:
+- ✅ Checks code quality
+- ✅ Verifies all imports and dependencies
+- ✅ Deploys to Render
+- ✅ Performs health checks
+
+See [CICD_SETUP.md](CICD_SETUP.md) for setup instructions.
 
 ## ✨ Features
 
